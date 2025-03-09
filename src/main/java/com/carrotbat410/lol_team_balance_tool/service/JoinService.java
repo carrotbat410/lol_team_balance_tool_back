@@ -20,6 +20,11 @@ public class JoinService {
 
         //TODO 이미 동일한 username이 존재하는지 판단하는 로직 추가하기
 
+        boolean isUser = userRepository.existsByUsername(joinDTO.getUsername());
+        if (isUser) {
+            return; //TODO 이부분 제대로 처리하기
+        }
+
         UserEntity data = new UserEntity();
 
         data.setUsername(joinDTO.getUsername());
