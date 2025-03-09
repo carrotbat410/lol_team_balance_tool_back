@@ -21,6 +21,9 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 );
 
+        http
+                .csrf((auth) -> auth.disable()); //TODO 나중에 다시 키기 (토큰을 같이 보내야하기 떄문에, 개발환경에서 csrf 임시로 꺼둠)
+
         return http.build();
     }
 }
