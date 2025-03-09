@@ -4,6 +4,7 @@ import com.carrotbat410.lol_team_balance_tool.dto.JoinDTO;
 import com.carrotbat410.lol_team_balance_tool.service.JoinService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -13,9 +14,9 @@ public class JoinController {
     private JoinService joinService;
 
     @PostMapping("/join")
-    public String Join(JoinDTO joinDTO) {
+    public String Join(@RequestBody JoinDTO joinDTO) {
 
-        //TODO 입력값 검증 로직 추가하기
+        //TODO 입력값 검증 로직 추가하기(@Validated 이용)
 
         joinService.joinProcess(joinDTO);
 
