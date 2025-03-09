@@ -1,0 +1,22 @@
+package com.carrotbat410.lol_team_balance_tool.controller;
+
+import com.carrotbat410.lol_team_balance_tool.dto.JoinDTO;
+import com.carrotbat410.lol_team_balance_tool.service.JoinService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class JoinController {
+
+    @Autowired//TODO 모든 Autowired -> 생성자 주입 방식으로 바꾸기
+    private JoinService joinService;
+
+    @PostMapping("/join")
+    public String Join(JoinDTO joinDTO) {
+
+        joinService.joinProcess(joinDTO);
+
+        return "success";
+    }
+}
