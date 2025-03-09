@@ -15,8 +15,12 @@ public class JoinController {
     @PostMapping("/join")
     public String Join(JoinDTO joinDTO) {
 
+        //TODO 입력값 검증 로직 추가하기
+
         joinService.joinProcess(joinDTO);
 
+
+        //TODO 반환 객체 만들어서 통일시키기?
         return "success";
     }
 }
