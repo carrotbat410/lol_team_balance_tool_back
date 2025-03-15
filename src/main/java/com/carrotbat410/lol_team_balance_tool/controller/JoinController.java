@@ -18,10 +18,10 @@ public class JoinController {
 
         //TODO 입력값 검증 로직 추가하기(@Validated 이용)
 
-        joinService.joinProcess(joinDTO);
-
+        String result = joinService.joinProcess(joinDTO);
 
         //TODO 반환 객체 만들어서 통일시키기?
-        return "success";
+        if(result.equals("yes")) return "success";
+        else return "already exists";
     }
 }
