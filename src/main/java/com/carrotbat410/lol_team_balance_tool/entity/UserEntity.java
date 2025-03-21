@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Setter
 public class UserEntity implements Serializable {
     //TODO 아래에 대해서 공부하고 포스팅하기
-    //0. Spring Security + JWT 방식일떄는 직렬화/역직렬화 사용할 필요 없었음
+    //0. Spring Security + JWT 방식일떄는 직렬화/역직렬화 사용할 필요 없었음 (UserEntity, CustomUserDetails 클래스에다가 Serializable 구현해줘야했음)
     //1. 직렬화/역직렬화,  객체를 직렬화하면 객체의 상태를 바이트 스트림으로 변환하여 저장하거나 네트워크를 통해 전송할 수 있다.
     //2. serialVersionUID 필드 없어도 되던데 (implements Serializable만 사용해도 직렬화는 가능, 그러나 역직렬화하려면 serialVersionUID가 동일해야하며 명시하는 것이 좋은 습관이다.??)
     //3. 왜 1L로 값을 고정하는거지?
