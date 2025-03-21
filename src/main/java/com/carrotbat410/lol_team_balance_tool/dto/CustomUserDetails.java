@@ -19,7 +19,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
         this.userEntity = userEntity;
     }
 
-     //* CustomUserDetails 클래스의 getAuthorities() 메서드에 의해 .requestMatchers("/admin").hasRole("ADMIN") 부분이 제대로 동작할 수 있습니다.
+     //* INFO CustomUserDetails 클래스의 getAuthorities() 메서드에 의해 .requestMatchers("/admin").hasRole("ADMIN") 부분이 제대로 동작할 수 있습니다.
      //* 그 이유는 Spring Security가 사용자의 권한을 GrantedAuthority 객체를 통해 관리하고, 이를 Authentication 객체에 저장하여 권한을 검사하기 때문입니다.
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -46,7 +46,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
     }
 
 
-    //* 아래 부분들은 일단 true로 패스하도록 설정함. 추후에 필요하다면 아래 부분들 검증하는 로직을 userEntity에 필드값들을 추가해서 구현하면됨.
+    //* INFO 아래 부분들은 일단 true로 패스하도록 설정함. 추후에 필요하다면 아래 부분들 검증하는 로직을 userEntity에 필드값들을 추가해서 구현하면됨.
     @Override
     public boolean isAccountNonExpired() {
         return true;
