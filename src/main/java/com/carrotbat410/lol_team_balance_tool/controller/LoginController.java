@@ -29,34 +29,26 @@ public class LoginController {
             HttpServletRequest request,
             HttpServletResponse response
     ) {
-        System.out.println("username" + loginRequestDTO.getUsername());
-        System.out.println("password" + loginRequestDTO.getPassword());
-
-//        try {
-//            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDTO.getUsername(), loginRequestDTO.getPassword()));
-//            SecurityContextHolder.getContext().setAuthentication(authentication);
-//            return ResponseEntity.ok("Login successful");
-//        } catch (AuthenticationException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
-//        }
-
 
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequestDTO.getUsername(), loginRequestDTO.getPassword())
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
             // 세션 생성 및 저장
             HttpSession session = request.getSession(true);
             session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
-            // 세션 ID를 응답 헤더에 추가
-            response.setHeader("Set-Cookie", "JSESSIONID=" + session.getId() + "; Path=/; HttpOnly; SameSite=Strict");
+            // 세션 ID를 응답 헤더에 추가 <- Security의 기본 동작에 의해 JSESSIONID는 서버가 자동으로 설정해주기 때문에, 명시적으로 response.setHeader("Set-Cookie", ...)로 쿠키를 설정할 필요가 없음.
+//            response.setHeader("Set-Cookie", "JSESSIONID=" + session.getId() + "; Path=/; HttpOnly; SameSite=Strict");
 
             return ResponseEntity.ok("Login successful");
-        } catch (AuthenticationException e) {
+        } catch (AuthenticationException e) { //TODO 에러는 따로 로그로 수집되도록.(파일로? 아니면 DB에 저장?)
+//            System.out.println("e:::1" + e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
         }
     }
 }
