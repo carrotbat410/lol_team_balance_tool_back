@@ -23,15 +23,41 @@ repositories {
 	mavenCentral()
 }
 
+
+/**
+ * implementation vs runtimeOnly
+ *
+ * #implementation
+ * - 의존성이 컴파일 시와 실행 시 모두 필요하다는 것을 의미함. 즉, 해당 의존성은 애플리케이션의 컴파일 및 실행에 모두 사용됨.
+ * - 예시: spring-boot-starter-web과 spring-boot-starter-data-jpa는 웹 애플리케이션과 JPA 관련 코드에서 컴파일 시와 실행 시 모두 필요하므로 implementation으로 추가됨.
+ *
+ * #runtimeOnly
+ * - runtimeOnly는 의존성이 실행 시에만 필요하고, 컴파일 시에는 필요하지 않다는 것을 의미함.
+ * - 예시: MySQL 데이터베이스와 연결될 때만 필요하고, 애플리케이션을 컴파일할 때는 MySQL 커넥터가 필요 없기 때문.
+ *
+ * 결론: 이 방식은 빌드 최적화와 불필요한 의존성 로딩을 피하기 위한 좋은 패턴.
+ */
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-//	implementation 'com.h2database:h2'  // (테스트 DB용)
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
+//	### BASE ###
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	compileOnly 'org.projectlombok:lombok'
+
+//	### spring Security ###
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.session:spring-session-jdbc'
+
+//	### DB ###
+//	implementation 'com.h2database:h2'  // (테스트 DB용)
 	runtimeOnly 'com.mysql:mysql-connector-j'
+
+//	### JPA ###
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+//	### UTILS ###
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+//	### TEST ###
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
