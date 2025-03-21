@@ -4,12 +4,16 @@ import com.carrotbat410.lol_team_balance_tool.entity.UserEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class CustomUserDetails implements UserDetails {
+public class CustomUserDetails implements UserDetails, Serializable {
 
     private UserEntity userEntity;
+    @Serial
+    private static final long serialVersionUID = 1L;
     
     public CustomUserDetails(UserEntity userEntity) {
         this.userEntity = userEntity;
