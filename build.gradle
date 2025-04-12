@@ -43,7 +43,6 @@ dependencies {
 
 //	### spring Security ###
 	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.session:spring-session-jdbc'
 
 //	### DB ###
 //	implementation 'com.h2database:h2'  // (테스트 DB용)
