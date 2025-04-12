@@ -10,8 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class JoinController {
 
-    @Autowired//TODO 모든 Autowired -> 생성자 주입 방식으로 바꾸기
-    private JoinService joinService;
+    private final JoinService joinService;
+
+    public JoinController(JoinService joinService) {
+        this.joinService = joinService;
+    }
 
     @PostMapping("/join")
     public String Join(@RequestBody JoinDTO joinDTO) {
