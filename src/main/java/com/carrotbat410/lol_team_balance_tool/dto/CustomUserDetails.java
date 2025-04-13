@@ -4,23 +4,19 @@ import com.carrotbat410.lol_team_balance_tool.entity.UserEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class CustomUserDetails implements UserDetails, Serializable {
+public class CustomUserDetails implements UserDetails {
 
-    private UserEntity userEntity;
-    @Serial
-    private static final long serialVersionUID = 1L;
-    
+    private final UserEntity userEntity;
+
     public CustomUserDetails(UserEntity userEntity) {
         this.userEntity = userEntity;
     }
 
-     //* INFO CustomUserDetails 클래스의 getAuthorities() 메서드에 의해 .requestMatchers("/admin").hasRole("ADMIN") 부분이 제대로 동작할 수 있습니다.
-     //* 그 이유는 Spring Security가 사용자의 권한을 GrantedAuthority 객체를 통해 관리하고, 이를 Authentication 객체에 저장하여 권한을 검사하기 때문입니다.
+    //* INFO CustomUserDetails 클래스의 getAuthorities() 메서드에 의해 .requestMatchers("/admin").hasRole("ADMIN") 부분이 제대로 동작할 수 있습니다.
+    //* 그 이유는 Spring Security가 사용자의 권한을 GrantedAuthority 객체를 통해 관리하고, 이를 Authentication 객체에 저장하여 권한을 검사하기 때문입니다.
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collection = new ArrayList<>();
