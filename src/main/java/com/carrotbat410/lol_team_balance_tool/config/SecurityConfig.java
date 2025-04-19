@@ -1,5 +1,6 @@
 package com.carrotbat410.lol_team_balance_tool.config;
 
+import com.carrotbat410.lol_team_balance_tool.jwt.JWTFilter;
 import com.carrotbat410.lol_team_balance_tool.jwt.JWTUtil;
 import com.carrotbat410.lol_team_balance_tool.jwt.LoginFilter;
 import org.springframework.context.annotation.Bean;
@@ -56,6 +57,12 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/", "join").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                                 .anyRequest().authenticated());//그 외 요청은 로그인한 사용자만 가능하도록
+
+        http
+                .addFilterAfter(new JWTFilter(jwtUtil), LoginFilter.class); //* addFilterBefore이 아닌, addFilterAfter를 이용해서 LoginFilter 앞이 아닌 뒤에 두는게 맞다 생각함.
+                //LoginFilter - 로그인요청시 jwt 생성.
+                //JWTFilter - api호출시 권한 검증.
+
 
         http
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
