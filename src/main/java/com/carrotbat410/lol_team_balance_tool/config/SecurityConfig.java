@@ -68,7 +68,7 @@ public class SecurityConfig {
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         http
-                .sessionManagement(sesion -> sesion
+                .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));//스프링 시큐리티가 세션을 만들지 않고, 사용하지도 않겠다는 의미.
 
         return http.build();
