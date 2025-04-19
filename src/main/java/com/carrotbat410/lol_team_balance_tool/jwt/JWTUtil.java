@@ -1,5 +1,6 @@
 package com.carrotbat410.lol_team_balance_tool.jwt;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,8 +30,14 @@ public class JWTUtil {
     }
 
     public Boolean isExpired(String token) {
-
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+        try{
+            return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+        }catch (ExpiredJwtException e) {
+            return true;
+        }catch (Exception e) {
+            System.out.println("JWT isExpired 메서드 실행 중 예외 발생: " + e.getMessage());
+            return false;
+        }
     }
 
     public String createJwt(String username, String role, Long expiredMs) {
