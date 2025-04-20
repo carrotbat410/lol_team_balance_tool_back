@@ -54,7 +54,7 @@ public class JWTFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8"); //* INFO 인코딩 설정 안해주면 한글이 ?로 찍힘.  기본적으로 서블릿 응답은 인코딩을 지정하지 않으면 ISO-8859-1로 처리됨. UTF-8 한글은 ISO-8859-1에서 표현 불가
-            response.getWriter().write("{\"error\": `\"토큰이 만료되었습니다.\"}");
+            response.getWriter().write("{\"error\":\"토큰이 만료되었습니다.\"}");
             return;
         }
 
