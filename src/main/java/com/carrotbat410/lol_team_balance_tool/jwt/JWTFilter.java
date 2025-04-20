@@ -43,7 +43,10 @@ public class JWTFilter extends OncePerRequestFilter {
         String[] authorizationValue = authorization.split(" ");
         if(authorizationValue.length != 2){
             System.out.println("Authorization 헤더값이 이상함.");
-            response.setStatus(400);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8"); //* INFO 인코딩 설정 안해주면 한글이 ?로 찍힘.  기본적으로 서블릿 응답은 인코딩을 지정하지 않으면 ISO-8859-1로 처리됨. UTF-8 한글은 ISO-8859-1에서 표현 불가
+            response.getWriter().write("{\"error\":\"잘못된 형식의 토큰값이 감지되었습니다.\"}");
         }
         String token = authorization.split(" ")[1];
 
