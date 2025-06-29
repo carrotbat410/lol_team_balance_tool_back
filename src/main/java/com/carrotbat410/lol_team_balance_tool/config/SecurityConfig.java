@@ -80,7 +80,7 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/", "join").permitAll()
+                        .requestMatchers("/login", "/", "/join").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                                 .anyRequest().authenticated());//그 외 요청은 로그인한 사용자만 가능하도록
 
