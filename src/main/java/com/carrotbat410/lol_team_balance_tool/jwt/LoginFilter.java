@@ -27,8 +27,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
 
-        // 로그인 요청 URL 설정
-//        setFilterProcessesUrl("/login");
+        setUsernameParameter("userId");
+//        setFilterProcessesUrl("/login"); // 로그인 요청 URL 설정
     }
 
     @Override
@@ -58,8 +58,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         GrantedAuthority auth = iterator.next();
 
         String role = auth.getAuthority();
-//        String token = jwtUtil.createJwt(username, role, 1000 * 60 * 60 * 6L);//* 1000 * 60 * 60 * 1 = 1시간.
-        String token = jwtUtil.createJwt(username, role, 1000 * 30L);//* 1000 * 30 = 30초
+        String token = jwtUtil.createJwt(username, role, 1000 * 60 * 60 * 3L);//* 1000 * 60 * 60 * 1 = 1시간.
+//        String token = jwtUtil.createJwt(username, role, 1000 * 30L);//* 1000 * 30 = 30초
 
         response.addHeader("Authorization", "Bearer " + token);
 

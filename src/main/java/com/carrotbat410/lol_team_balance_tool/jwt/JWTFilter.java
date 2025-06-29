@@ -67,7 +67,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         //userEntity를 생성하여 값 set
         UserEntity userEntity = new UserEntity();
-        userEntity.setUsername(username);
+        userEntity.setUserId(username);
         userEntity.setPassword("temppassword");
         userEntity.setRole(role);
 
