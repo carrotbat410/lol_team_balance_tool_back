@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<UserEntity, Integer> {
 
-    boolean existsByUsername(String username);
+    boolean existsByUserId(String userId);
 
-    UserEntity findByUsername(String username); // 로그인할떄, CustomUserDetailsService클래스에서 사용할 method
+    UserEntity findByUserId(String userId); // 로그인할떄, CustomUserDetailsService클래스에서 사용할 method
 }

@@ -13,6 +13,7 @@ import java.io.Serializable;
 @Entity
 @Getter
 @Setter
+@Table(name = "users")
 public class UserEntity implements Serializable {
     //TODO 아래에 대해서 공부하고 포스팅하기
     //0. Spring Security + JWT 방식일떄는 직렬화/역직렬화 사용할 필요 없었음 (UserEntity, CustomUserDetails 클래스에다가 Serializable 구현해줘야했음)
@@ -27,10 +28,10 @@ public class UserEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private int no;
 
     @Column(unique = true)
-    private String username;
+    private String userId;
 
     private String password;
 
