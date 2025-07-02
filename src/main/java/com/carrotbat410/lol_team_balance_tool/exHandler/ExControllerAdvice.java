@@ -1,6 +1,7 @@
 package com.carrotbat410.lol_team_balance_tool.exHandler;
 
 import com.carrotbat410.lol_team_balance_tool.dto.response.ErrorResponseDTO;
+import com.carrotbat410.lol_team_balance_tool.exHandler.exception.DataConflictException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -23,6 +24,12 @@ public class ExControllerAdvice {
         String code = error.getCode();
 
         return new ErrorResponseDTO(code, message);
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler
+    public ErrorResponseDTO dataConflictException(DataConflictException e) {
+        return new ErrorResponseDTO(e.getCode(), e.getMessage());
     }
 
 }
