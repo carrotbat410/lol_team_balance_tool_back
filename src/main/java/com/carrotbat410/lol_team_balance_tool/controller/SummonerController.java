@@ -5,6 +5,7 @@ import com.carrotbat410.lol_team_balance_tool.dto.SummonerDTO;
 import com.carrotbat410.lol_team_balance_tool.dto.response.SuccessResponseDTO;
 import com.carrotbat410.lol_team_balance_tool.entity.SummonerEntity;
 import com.carrotbat410.lol_team_balance_tool.service.SummonerService;
+import com.carrotbat410.lol_team_balance_tool.utils.SecurityUtils;
 import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,12 +39,9 @@ public class SummonerController {
 
         String summonerName = addSummonerRequestDTO.getSummonerName();
         String tagLine = addSummonerRequestDTO.getTagLine();
-        System.out.println("summonerName:" + summonerName + " | tagLine: " + tagLine);
 
-        SummonerEntity tmpSummonerEntity = new SummonerEntity(null, "test1", "통티모바베큐3", "0410", "GOLD", 1, 11, 120, 90, 10, 230);
-        summonerService.saveSummoner(tmpSummonerEntity);
+        summonerService.saveSummoner(addSummonerRequestDTO);
 
-        tmpSummonerEntity.getCreated_at();
         return new SuccessResponseDTO<>();
     }
 }
