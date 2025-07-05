@@ -29,7 +29,7 @@ public class SummonerService {
         String summonerName = addSummonerRequestDTO.getSummonerName().trim();
         String tagLine = addSummonerRequestDTO.getTagLine().trim();
 
-        boolean isExist = summonerRepository.existsByUserIdAndSummonerNameAndTagLine(userId, summonerName, tagLine);
+        boolean isExist = summonerRepository.existsByUserIdAndSummonerNameAndTagLineIgnoreCaseAndNoSpaces(userId, summonerName, tagLine);
         if (isExist) {
             throw new DataConflictException("이미 등록된 소환사입니다.");
         }
