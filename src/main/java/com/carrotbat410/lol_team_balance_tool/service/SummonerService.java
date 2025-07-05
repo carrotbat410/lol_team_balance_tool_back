@@ -35,24 +35,16 @@ public class SummonerService {
         }
 
         RiotAccountDTO account = riotApiClient.fetchAccountByRiotId(summonerName, tagLine).block();
-//        System.out.println("-----------------------------------------");
-//        System.out.println("getGameName:"+account.getGameName());
-//        System.out.println("getPuuid:"+account.getPuuid());
-        System.out.println("account::"+account);
-        System.out.println("account.toString()::"+account.toString());
-
-        if (account == null) {
-            throw new DataConflictException("소환사 정보를 찾을 수 없습니다.");
-        }
+        System.out.println("=========================================================================================");
+        System.out.println("account = " + account);
 
         RiotSummonerDTO summoner = riotApiClient.fetchSummonerByPuuid(account.getPuuid()).block();
+        System.out.println("summoner = " + summoner);
 
-        if (summoner == null) {
-            throw new DataConflictException("소환사 정보를 찾을 수 없습니다.");
-        }
-
-        RiotLeagueEntryDTO[] leagueEntries = riotApiClient.fetchLeagueEntryByPuuid(summoner.getPuuid()).block();
+        RiotLeagueEntryDTO[] leagueEntries = riotApiClient.fetchLeagueEntryByPuuid(account.getPuuid()).block();
+        System.out.println("leagueEntries = " + leagueEntries);
         RiotLeagueEntryDTO soloRank = findSoloRank(leagueEntries);
+        System.out.println("=========================================================================================");
 
         SummonerEntity summonerEntity = createSummonerEntity(userId, account, summoner, soloRank);
         summonerRepository.save(summonerEntity);
@@ -69,19 +61,61 @@ public class SummonerService {
     }
 
     private SummonerEntity createSummonerEntity(String userId, RiotAccountDTO account, RiotSummonerDTO summoner, RiotLeagueEntryDTO soloRank) {
+        String tier = Optional.ofNullable(soloRank).map(RiotLeagueEntryDTO::getTier).orElse("UNRANKED");
+        String rank = Optional.ofNullable(soloRank).map(RiotLeagueEntryDTO::getRank).orElse(null);
+        int mmr = calculateMmr(tier, rank);
+
         return new SummonerEntity(
                 null,
                 userId,
                 account.getGameName(),
                 account.getTagLine(),
-                Optional.ofNullable(soloRank).map(RiotLeagueEntryDTO::getTier).orElse("UNRANKED"),
+                tier,
                 Optional.ofNullable(soloRank).map(this::convertRankToInt).orElse(0),
-                0, // MMR은 별도 API 필요 (현재 API 스펙에 없음)
+                mmr,
                 (int) summoner.getSummonerLevel(),
                 Optional.ofNullable(soloRank).map(RiotLeagueEntryDTO::getWins).orElse(0),
                 Optional.ofNullable(soloRank).map(RiotLeagueEntryDTO::getLosses).orElse(0),
                 summoner.getProfileIconId()
         );
+    }
+
+    private int calculateMmr(String tier, String rank) {
+        if (tier == null) {
+            return 0;
+        }
+
+        switch (tier) {
+            case "UNRANKED":
+                return 0;
+            case "MASTER":
+                return 29;
+            case "GRANDMASTER":
+                return 30;
+            case "CHALLENGER":
+                return 31;
+        }
+
+        int tierBase = switch (tier) {
+            case "IRON" -> 0;
+            case "BRONZE" -> 4;
+            case "SILVER" -> 8;
+            case "GOLD" -> 12;
+            case "PLATINUM" -> 16;
+            case "EMERALD" -> 20;
+            case "DIAMOND" -> 24;
+            default -> 0;
+        };
+
+        int rankValue = rank != null ? switch (rank) {
+            case "IV" -> 1;
+            case "III" -> 2;
+            case "II" -> 3;
+            case "I" -> 4;
+            default -> 0;
+        } : 0;
+
+        return tierBase + rankValue;
     }
 
     private int convertRankToInt(RiotLeagueEntryDTO soloRank) {
