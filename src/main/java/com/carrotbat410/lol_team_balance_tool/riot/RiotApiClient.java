@@ -3,6 +3,7 @@ package com.carrotbat410.lol_team_balance_tool.riot;
 import com.carrotbat410.lol_team_balance_tool.dto.riot.RiotAccountDTO;
 import com.carrotbat410.lol_team_balance_tool.dto.riot.RiotLeagueEntryDTO;
 import com.carrotbat410.lol_team_balance_tool.dto.riot.RiotSummonerDTO;
+import com.carrotbat410.lol_team_balance_tool.exHandler.exception.RiotApiNotFoundException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

@@ -1,42 +1,97 @@
 package com.carrotbat410.lol_team_balance_tool.service;
 
 import com.carrotbat410.lol_team_balance_tool.dto.AddSummonerRequestDTO;
+import com.carrotbat410.lol_team_balance_tool.dto.riot.RiotAccountDTO;
+import com.carrotbat410.lol_team_balance_tool.dto.riot.RiotLeagueEntryDTO;
+import com.carrotbat410.lol_team_balance_tool.dto.riot.RiotSummonerDTO;
 import com.carrotbat410.lol_team_balance_tool.entity.SummonerEntity;
 import com.carrotbat410.lol_team_balance_tool.exHandler.exception.DataConflictException;
 import com.carrotbat410.lol_team_balance_tool.repository.SummonerRepository;
+import com.carrotbat410.lol_team_balance_tool.riot.RiotApiClient;
 import com.carrotbat410.lol_team_balance_tool.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class SummonerService {
 
     private final SummonerRepository summonerRepository;
+    private final RiotApiClient riotApiClient;
 
 
     public void saveSummoner(AddSummonerRequestDTO addSummonerRequestDTO) {
 
-        //1. 요청에 필요한 값들 가지고 있기.
         String userId = SecurityUtils.getCurrentUserIdFromAuthentication();
         String summonerName = addSummonerRequestDTO.getSummonerName().trim();
         String tagLine = addSummonerRequestDTO.getTagLine().trim();
-        System.out.println(userId+summonerName+tagLine);
-
-        //TODO 2. 먼저 DB에 같은userId가 이미 추가했는지 확인하기
-        //TODO 특히, Summoner에서 조회/Riot API에서 조회할떄 nickname,tagLine 조회 조건 다른거 확인해야함.
 
         boolean isExist = summonerRepository.existsByUserIdAndSummonerNameAndTagLine(userId, summonerName, tagLine);
-        if(isExist) throw new DataConflictException("이미 데이터가 존재합니다.");
+        if (isExist) {
+            throw new DataConflictException("이미 등록된 소환사입니다.");
+        }
 
-        //TODO 3.(없다면) Riot API이용해서 정보 가져오기.
-        SummonerEntity tmpSummonerEntity = new SummonerEntity(null, "test1", "통티모바베큐", "0410", "GOLD", 1, 11, 120, 90, 10, 230);
+        RiotAccountDTO account = riotApiClient.fetchAccountByRiotId(summonerName, tagLine).block();
+//        System.out.println("-----------------------------------------");
+//        System.out.println("getGameName:"+account.getGameName());
+//        System.out.println("getPuuid:"+account.getPuuid());
+        System.out.println("account::"+account);
+        System.out.println("account.toString()::"+account.toString());
 
-        summonerRepository.save(tmpSummonerEntity);
+        if (account == null) {
+            throw new DataConflictException("소환사 정보를 찾을 수 없습니다.");
+        }
+
+        RiotSummonerDTO summoner = riotApiClient.fetchSummonerByPuuid(account.getPuuid()).block();
+
+        if (summoner == null) {
+            throw new DataConflictException("소환사 정보를 찾을 수 없습니다.");
+        }
+
+        RiotLeagueEntryDTO[] leagueEntries = riotApiClient.fetchLeagueEntryByPuuid(summoner.getPuuid()).block();
+        RiotLeagueEntryDTO soloRank = findSoloRank(leagueEntries);
+
+        SummonerEntity summonerEntity = createSummonerEntity(userId, account, summoner, soloRank);
+        summonerRepository.save(summonerEntity);
     }
 
-//    public String getMySummoners() {
-//        return "tmp ok";
-//    }
+    private RiotLeagueEntryDTO findSoloRank(RiotLeagueEntryDTO[] leagueEntries) {
+        if (leagueEntries == null) {
+            return null;
+        }
+        return Arrays.stream(leagueEntries)
+                .filter(entry -> "RANKED_SOLO_5x5".equals(entry.getQueueType()))
+                .findFirst()
+                .orElse(null);
+    }
 
+    private SummonerEntity createSummonerEntity(String userId, RiotAccountDTO account, RiotSummonerDTO summoner, RiotLeagueEntryDTO soloRank) {
+        return new SummonerEntity(
+                null,
+                userId,
+                account.getGameName(),
+                account.getTagLine(),
+                Optional.ofNullable(soloRank).map(RiotLeagueEntryDTO::getTier).orElse("UNRANKED"),
+                Optional.ofNullable(soloRank).map(this::convertRankToInt).orElse(0),
+                0, // MMR은 별도 API 필요 (현재 API 스펙에 없음)
+                (int) summoner.getSummonerLevel(),
+                Optional.ofNullable(soloRank).map(RiotLeagueEntryDTO::getWins).orElse(0),
+                Optional.ofNullable(soloRank).map(RiotLeagueEntryDTO::getLosses).orElse(0),
+                summoner.getProfileIconId()
+        );
+    }
+
+    private int convertRankToInt(RiotLeagueEntryDTO soloRank) {
+        return switch (soloRank.getRank()) {
+            case "I" -> 1;
+            case "II" -> 2;
+            case "III" -> 3;
+            case "IV" -> 4;
+            default -> 0;
+        };
+    }
 }
+

@@ -2,6 +2,7 @@ package com.carrotbat410.lol_team_balance_tool.exHandler;
 
 import com.carrotbat410.lol_team_balance_tool.dto.response.ErrorResponseDTO;
 import com.carrotbat410.lol_team_balance_tool.exHandler.exception.DataConflictException;
+import com.carrotbat410.lol_team_balance_tool.exHandler.exception.RiotApiNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -30,6 +31,12 @@ public class ExControllerAdvice {
     @ExceptionHandler
     public ErrorResponseDTO dataConflictException(DataConflictException e) {
         return new ErrorResponseDTO(e.getCode(), e.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(RiotApiNotFoundException.class)
+    public ErrorResponseDTO riotApiNotFoundException(RiotApiNotFoundException e) {
+        return new ErrorResponseDTO("RIOT_API_ERROR", e.getMessage());
     }
 
 }
