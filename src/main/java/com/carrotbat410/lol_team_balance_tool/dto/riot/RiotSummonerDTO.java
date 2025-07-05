@@ -14,4 +14,15 @@ public class RiotSummonerDTO {
     private long revisionDate;
     private int profileIconId;
     private long summonerLevel;
+
+    @Override
+    public String toString() {
+        return "RiotSummonerDTO{" +
+                "id='" + id + '\'' +
+                ", accountId='" + accountId + '\'' +
+                ", revisionDate=" + revisionDate +
+                ", profileIconId=" + profileIconId +
+                ", summonerLevel=" + summonerLevel +
+                '}';
+    }
 }

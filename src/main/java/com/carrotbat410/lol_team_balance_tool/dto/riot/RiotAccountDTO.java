@@ -11,4 +11,13 @@ public class RiotAccountDTO {
     private String puuid;
     private String gameName;
     private String tagLine;
+
+    @Override
+    public String toString() {
+        return "RiotAccountDTO{" +
+                "puuid='" + puuid + '\'' +
+                ", gameName='" + gameName + '\'' +
+                ", tagLine='" + tagLine + '\'' +
+                '}';
+    }
 }

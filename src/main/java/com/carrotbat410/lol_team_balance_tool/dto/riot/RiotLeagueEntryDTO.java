@@ -16,4 +16,18 @@ public class RiotLeagueEntryDTO {
     private int leaguePoints;
     private int wins;
     private int losses;
+
+    @Override
+    public String toString() {
+        return "RiotLeagueEntryDTO{" +
+                "leagueId='" + leagueId + '\'' +
+                ", summonerId='" + summonerId + '\'' +
+                ", queueType='" + queueType + '\'' +
+                ", tier='" + tier + '\'' +
+                ", rank='" + rank + '\'' +
+                ", leaguePoints=" + leaguePoints +
+                ", wins=" + wins +
+                ", losses=" + losses +
+                '}';
+    }
 }
