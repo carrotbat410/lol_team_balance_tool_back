@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface SummonerRepository extends JpaRepository<SummonerEntity, Long> {
 
-    //Riot Account API에 summonerName -> 띄어쓰기 구분 x, 영문 대소문자 구분 xs
+    //Riot Account API에 summonerName -> 띄어쓰기 구분 x, 영문 대소문자 구분 x
     @Query("SELECT CASE WHEN COUNT(s) > 0 THEN TRUE ELSE FALSE END " +
             "FROM SummonerEntity  s " +
             "WHERE s.userId = :userId " +
