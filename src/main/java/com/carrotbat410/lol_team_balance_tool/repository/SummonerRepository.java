@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface SummonerRepository extends JpaRepository<SummonerEntity, Long> {
 
     //Riot Account API에 summonerName -> 띄어쓰기 구분 x, 영문 대소문자 구분 x
@@ -14,5 +16,11 @@ public interface SummonerRepository extends JpaRepository<SummonerEntity, Long> 
             "AND REPLACE(UPPER(s.summonerName), ' ', '') = REPLACE(UPPER(:summonerName), ' ', '') " +
             "AND UPPER(s.tagLine) = UPPER(:tagLine)")
     boolean existsByUserIdAndSummonerNameAndTagLineIgnoreCaseAndNoSpaces(@Param("userId") String userId, @Param("summonerName") String summonerName, @Param("tagLine") String tagLine);
+
+    @Query("SELECT s.no FROM SummonerEntity s " +
+            "WHERE s.userId = :userId " +
+            "AND REPLACE(UPPER(s.summonerName), ' ', '') = REPLACE(UPPER(:summonerName), ' ', '') " +
+            "AND UPPER(s.tagLine) = UPPER(:tagLine)")
+    Optional<Long> findNoByUserIdAndSummonerNameAndTagLineIgnoreCaseAndNoSpaces(@Param("userId") String userId, @Param("summonerName") String summonerName, @Param("tagLine") String tagLine);
 
 }
