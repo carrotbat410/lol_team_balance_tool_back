@@ -37,9 +37,6 @@ public class SummonerController {
     @PostMapping("/summoner")
     public SuccessResponseDTO<Void> addSummonerWithSummonerNameAndTagLine(@RequestBody @Validated AddSummonerRequestDTO addSummonerRequestDTO) {
 
-        String summonerName = addSummonerRequestDTO.getSummonerName();
-        String tagLine = addSummonerRequestDTO.getTagLine();
-
         summonerService.saveSummoner(addSummonerRequestDTO);
 
         return new SuccessResponseDTO<>();

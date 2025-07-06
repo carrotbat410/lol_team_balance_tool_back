@@ -30,12 +30,10 @@ public class SummonerService {
         String tagLine = addSummonerRequestDTO.getTagLine().trim();
 
         boolean isExist = summonerRepository.existsByUserIdAndSummonerNameAndTagLineIgnoreCaseAndNoSpaces(userId, summonerName, tagLine);
-        if (isExist) {
-            throw new DataConflictException("이미 등록된 소환사입니다.");
-        }
+        if (isExist) throw new DataConflictException("이미 등록된 소환사입니다.");
 
-        RiotAccountDTO account = riotApiClient.fetchAccountByRiotId(summonerName, tagLine).block();
         System.out.println("=========================================================================================");
+        RiotAccountDTO account = riotApiClient.fetchAccountByRiotId(summonerName, tagLine).block();
         System.out.println("account = " + account);
 
         RiotSummonerDTO summoner = riotApiClient.fetchSummonerByPuuid(account.getPuuid()).block();
