@@ -34,17 +34,9 @@ public class SummonerService {
         boolean isExist = summonerRepository.existsByUserIdAndSummonerNameAndTagLineIgnoreCaseAndNoSpaces(userId, summonerName, tagLine);
         if (isExist) throw new DataConflictException("이미 등록된 소환사입니다.");
 
-        System.out.println("=========================================================================================");
         RiotAccountDTO account = riotApiClient.fetchAccountByRiotId(summonerName, tagLine).block();
-        System.out.println("account = " + account);
-
         RiotSummonerDTO summoner = riotApiClient.fetchSummonerByPuuid(account.getPuuid()).block();
-        System.out.println("summoner = " + summoner);
-
-        RiotLeagueEntryDTO[] leagueEntries = riotApiClient.fetchLeagueEntryByPuuid(account.getPuuid()).block();
-        System.out.println("leagueEntries = " + leagueEntries);
-        RiotLeagueEntryDTO soloRank = findSoloRank(leagueEntries);
-        System.out.println("=========================================================================================");
+        RiotLeagueEntryDTO soloRank = riotApiClient.fetchSoloRankLeagueEntryByPuuid(account.getPuuid()).block();
 
         SummonerEntity summonerEntity = createSummonerEntity(null, userId, account, summoner, soloRank);
         summonerRepository.save(summonerEntity);
@@ -58,30 +50,12 @@ public class SummonerService {
         Long summonerNo = summonerRepository.findNoByUserIdAndSummonerNameAndTagLineIgnoreCaseAndNoSpaces(userId, summonerName, tagLine)
                 .orElseThrow(() -> new NotFoundDataException("존재하지 않는 소환사입니다."));
 
-        System.out.println("=========================================================================================");
         RiotAccountDTO account = riotApiClient.fetchAccountByRiotId(summonerName, tagLine).block();
-        System.out.println("account = " + account);
-
         RiotSummonerDTO summoner = riotApiClient.fetchSummonerByPuuid(account.getPuuid()).block();
-        System.out.println("summoner = " + summoner);
-
-        RiotLeagueEntryDTO[] leagueEntries = riotApiClient.fetchLeagueEntryByPuuid(account.getPuuid()).block();
-        System.out.println("leagueEntries = " + leagueEntries);
-        RiotLeagueEntryDTO soloRank = findSoloRank(leagueEntries);
-        System.out.println("=========================================================================================");
+        RiotLeagueEntryDTO soloRank = riotApiClient.fetchSoloRankLeagueEntryByPuuid(account.getPuuid()).block();
 
         SummonerEntity summonerEntity = createSummonerEntity(summonerNo, userId, account, summoner, soloRank);
         summonerRepository.save(summonerEntity);
-    }
-
-    private RiotLeagueEntryDTO findSoloRank(RiotLeagueEntryDTO[] leagueEntries) {
-        if (leagueEntries == null) {
-            return null;
-        }
-        return Arrays.stream(leagueEntries)
-                .filter(entry -> "RANKED_SOLO_5x5".equals(entry.getQueueType()))
-                .findFirst()
-                .orElse(null);
     }
 
     private SummonerEntity createSummonerEntity(Long summonerNo, String userId, RiotAccountDTO account, RiotSummonerDTO summoner, RiotLeagueEntryDTO soloRank) {

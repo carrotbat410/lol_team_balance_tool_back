@@ -41,10 +41,17 @@ public class RiotApiClient {
                 .bodyToMono(RiotSummonerDTO.class);
     }
 
-    public Mono<RiotLeagueEntryDTO[]> fetchLeagueEntryByPuuid(String puuid) {
+    public Mono<RiotLeagueEntryDTO> fetchSoloRankLeagueEntryByPuuid(String puuid) {
         return krWebClient.get()
                 .uri("/lol/league/v4/entries/by-puuid/{puuid}?api_key={apiKey}", puuid, riotApiKey)
                 .retrieve()
-                .bodyToMono(RiotLeagueEntryDTO[].class);
+                .bodyToMono(RiotLeagueEntryDTO[].class)
+                .flatMap(leagueEntries ->
+                        java.util.Arrays.stream(leagueEntries)
+                                .filter(entry -> "RANKED_SOLO_5x5".equals(entry.getQueueType()))
+                                .findFirst()
+                                .map(Mono::just)
+                                .orElse(Mono.empty())
+                );
     }
 }
