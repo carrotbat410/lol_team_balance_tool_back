@@ -1,5 +1,6 @@
 package com.carrotbat410.lol_team_balance_tool.dto.riot;
 
+import com.carrotbat410.lol_team_balance_tool.entity.Tier;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,7 @@ public class RiotLeagueEntryDTO {
     private final String leagueId;
     private final String summonerId;
     private final String queueType;
-    private final String tier;
+    private final Tier tier;
     private final String rank;
     private final int leaguePoints;
     private final int wins;
