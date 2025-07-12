@@ -37,7 +37,7 @@ public class SummonerService {
     }
 
 
-    public void saveSummoner(AddSummonerRequestDTO addSummonerRequestDTO) {
+    public SummonerDTO saveSummoner(AddSummonerRequestDTO addSummonerRequestDTO) {
 
         String userId = SecurityUtils.getCurrentUserIdFromAuthentication();
         String summonerName = addSummonerRequestDTO.getSummonerName().trim();
@@ -51,7 +51,8 @@ public class SummonerService {
         RiotLeagueEntryDTO soloRank = riotApiClient.fetchSoloRankLeagueEntryByPuuid(account.getPuuid()).block();
 
         SummonerEntity summonerEntity = createSummonerEntity(null, userId, account, summoner, soloRank);
-        summonerRepository.save(summonerEntity);
+        SummonerEntity save = summonerRepository.save(summonerEntity);
+        return SummonerDTO.fromEntity(save);
     }
 
     public void updateSummoner(UpdateSummonerReqeustDTO updateSummonerReqeustDTO){

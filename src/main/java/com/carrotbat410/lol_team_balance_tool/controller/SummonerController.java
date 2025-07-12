@@ -28,12 +28,11 @@ public class SummonerController {
     }
 
     @PostMapping("/summoner")
-    public SuccessResponseDTO<Void> addSummonerWithSummonerNameAndTagLine(@RequestBody @Validated AddSummonerRequestDTO addSummonerRequestDTO) {
+    public SuccessResponseDTO<SummonerDTO> addSummonerWithSummonerNameAndTagLine(@RequestBody @Validated AddSummonerRequestDTO addSummonerRequestDTO) {
 
-        summonerService.saveSummoner(addSummonerRequestDTO);
+        SummonerDTO summonerDTO = summonerService.saveSummoner(addSummonerRequestDTO);
 
-        //TODO return SummonerDTO 해야, 프론트에서 return값으로 바로 리스트에 추가할수있을듯
-        return new SuccessResponseDTO<>();
+        return new SuccessResponseDTO<>("ok", summonerDTO);
     }
 
     @PatchMapping("/summoner")
