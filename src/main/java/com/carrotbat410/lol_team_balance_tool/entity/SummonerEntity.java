@@ -18,7 +18,8 @@ public class SummonerEntity extends BaseEntity {
     private String userId;
     private String summonerName;
     private String tagLine;
-    private String tier;
+    @Enumerated(EnumType.STRING)
+    private Tier tier;
     private Integer rank1;
     private int mmr;
     private int level;

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import com.carrotbat410.lol_team_balance_tool.entity.Tier;
 import java.time.LocalDateTime;
 
 @Getter @Setter @Builder
@@ -12,7 +13,7 @@ public class SummonerDTO {
     private final Long no;
     private final String summonerName;
     private final String tagLine;
-    private final String tier;
+    private final Tier tier;
     private final Integer rank;
     private final int mmr;
     private final int summonerLevel;

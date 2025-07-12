@@ -7,6 +7,7 @@ import com.carrotbat410.lol_team_balance_tool.dto.riot.RiotAccountDTO;
 import com.carrotbat410.lol_team_balance_tool.dto.riot.RiotLeagueEntryDTO;
 import com.carrotbat410.lol_team_balance_tool.dto.riot.RiotSummonerDTO;
 import com.carrotbat410.lol_team_balance_tool.entity.SummonerEntity;
+import com.carrotbat410.lol_team_balance_tool.entity.Tier;
 import com.carrotbat410.lol_team_balance_tool.exHandler.exception.DataConflictException;
 import com.carrotbat410.lol_team_balance_tool.exHandler.exception.NotFoundDataException;
 import com.carrotbat410.lol_team_balance_tool.repository.SummonerRepository;
@@ -70,7 +71,8 @@ public class SummonerService {
     }
 
     private SummonerEntity createSummonerEntity(Long summonerNo, String userId, RiotAccountDTO account, RiotSummonerDTO summoner, RiotLeagueEntryDTO soloRank) {
-        String tier = Optional.ofNullable(soloRank).map(RiotLeagueEntryDTO::getTier).orElse("UNRANKED");
+        String tierStr = Optional.ofNullable(soloRank).map(RiotLeagueEntryDTO::getTier).orElse("UNRANKED");
+        Tier tier = Tier.valueOf(tierStr);
         String rank = Optional.ofNullable(soloRank).map(RiotLeagueEntryDTO::getRank).orElse(null);
         int mmr = calculateMmr(tier, rank);
 
@@ -89,30 +91,30 @@ public class SummonerService {
         );
     }
 
-    private int calculateMmr(String tier, String rank) {
+    private int calculateMmr(Tier tier, String rank) {
         if (tier == null) {
             return 0;
         }
 
         switch (tier) {
-            case "UNRANKED":
+            case UNRANKED:
                 return 0;
-            case "MASTER":
+            case MASTER:
                 return 29;
-            case "GRANDMASTER":
+            case GRANDMASTER:
                 return 30;
-            case "CHALLENGER":
+            case CHALLENGER:
                 return 31;
         }
 
         int tierBase = switch (tier) {
-            case "IRON" -> 0;
-            case "BRONZE" -> 4;
-            case "SILVER" -> 8;
-            case "GOLD" -> 12;
-            case "PLATINUM" -> 16;
-            case "EMERALD" -> 20;
-            case "DIAMOND" -> 24;
+            case IRON -> 0;
+            case BRONZE -> 4;
+            case SILVER -> 8;
+            case GOLD -> 12;
+            case PLATINUM -> 16;
+            case EMERALD -> 20;
+            case DIAMOND -> 24;
             default -> 0;
         };
 
