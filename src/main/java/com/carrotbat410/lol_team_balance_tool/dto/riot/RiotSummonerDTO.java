@@ -9,12 +9,12 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 public class RiotSummonerDTO {
-    private String id;
-    private String accountId;
-    private String puuid;
-    private long revisionDate;
-    private int profileIconId;
-    private long summonerLevel;
+    private final String id;
+    private final String accountId;
+    private final String puuid;
+    private final long revisionDate;
+    private final int profileIconId;
+    private final long summonerLevel;
 
     @Override
     public String toString() {

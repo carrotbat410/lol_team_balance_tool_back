@@ -7,9 +7,9 @@ import lombok.*;
 //@NoArgsConstructor
 @RequiredArgsConstructor
 public class RiotAccountDTO {
-    private String puuid;
-    private String gameName;
-    private String tagLine;
+    private final String puuid;
+    private final String gameName;
+    private final String tagLine;
 
     @Override
     public String toString() {

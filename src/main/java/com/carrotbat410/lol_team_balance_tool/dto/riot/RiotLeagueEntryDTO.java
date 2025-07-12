@@ -9,14 +9,14 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 public class RiotLeagueEntryDTO {
-    private String leagueId;
-    private String summonerId;
-    private String queueType;
-    private String tier;
-    private String rank;
-    private int leaguePoints;
-    private int wins;
-    private int losses;
+    private final String leagueId;
+    private final String summonerId;
+    private final String queueType;
+    private final String tier;
+    private final String rank;
+    private final int leaguePoints;
+    private final int wins;
+    private final int losses;
 
     @Override
     public String toString() {
