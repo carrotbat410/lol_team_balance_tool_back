@@ -5,9 +5,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface SummonerRepository extends JpaRepository<SummonerEntity, Long> {
+
+    List<SummonerEntity> findByUserId(String userId);
 
     //Riot Account API에 summonerName -> 띄어쓰기 구분 x, 영문 대소문자 구분 x
     @Query("SELECT CASE WHEN COUNT(s) > 0 THEN TRUE ELSE FALSE END " +

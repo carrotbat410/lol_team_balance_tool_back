@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -20,16 +21,10 @@ public class SummonerController {
 
     private final SummonerService summonerService;
 
-//    public SummonerController(SummonerService summonerService) {
-//        this.summonerService = summonerService;
-//    }
-
-    @GetMapping("/mySummoners")
-    public String getMySummonerList() {
-
-//        SummonerDTO[] summonerDTOs = summonerService.getMySummoner();
-//        return summonerDTOs;
-        return "hi??";
+    @GetMapping("/summoners")
+    public SuccessResponseDTO<List<SummonerDTO>> getMySummoners() {
+        List<SummonerDTO> summoners = summonerService.findSummoners();
+        return new SuccessResponseDTO<>("ok",summoners);
     }
 
     @PostMapping("/summoner")

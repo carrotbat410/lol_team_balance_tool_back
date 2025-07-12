@@ -1,13 +1,13 @@
 package com.carrotbat410.lol_team_balance_tool.dto;
 
 import com.carrotbat410.lol_team_balance_tool.entity.SummonerEntity;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Getter @Setter @Builder
 public class SummonerDTO {
     private final Long no;
     private final String summonerName;
@@ -15,31 +15,25 @@ public class SummonerDTO {
     private final String tier;
     private final Integer rank;
     private final int mmr;
-    private final int level;
+    private final int summonerLevel;
     private final int wins;
     private final int losses;
-    private final int iconId;
-//    private final LocalDateTime updatedAt;
+    private final int profileIconId;
 
-//    public static SummonerDTO from(SummonerEntity summonerEntity) {
-//
-//        return new SummonerDTO(
-//                summonerEntity.getNo(), summonerEntity.getSummonerName(), summonerEntity.getTagLine(), summonerEntity.getTier(), summonerEntity.getRank1(),
-//                summonerEntity.getMmr(), summonerEntity.getLevel(), summonerEntity.getWins(), summonerEntity.getLosses(),summonerEntity.getIconId(), summonerEntity.getLevel(), );
-//    }
-
-//    @QueryProjection
-    public SummonerDTO(Long no, String summonerName, String tagLine, String tier, Integer rank, int mmr, int level, int wins, int losses, int iconId) {
-        this.no = no;
-        this.summonerName = summonerName;
-        this.tagLine = tagLine;
-        this.tier = tier;
-        this.rank = rank;
-        this.mmr = mmr;
-        this.level = level;
-        this.wins = wins;
-        this.losses = losses;
-        this.iconId = iconId;
+    public static SummonerDTO fromEntity(SummonerEntity summonerEntity) {
+        //* builder 사용 후기: 순서에 맞게 필드값들 안넣어도 되고, 필드명에 의존하여 맵핑이 이루어져서 가독성도 좋은듯
+        return SummonerDTO.builder()
+                .no(summonerEntity.getNo())
+                .summonerName(summonerEntity.getSummonerName())
+                .tagLine(summonerEntity.getTagLine())
+                .tier(summonerEntity.getTier())
+                .rank(summonerEntity.getRank1())
+                .mmr(summonerEntity.getMmr())
+                .summonerLevel(summonerEntity.getLevel())
+                .wins(summonerEntity.getWins())
+                .losses(summonerEntity.getLosses())
+                .profileIconId(summonerEntity.getIconId())
+                .build();
     }
 
 }

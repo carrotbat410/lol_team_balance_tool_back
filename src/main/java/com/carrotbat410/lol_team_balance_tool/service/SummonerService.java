@@ -1,6 +1,7 @@
 package com.carrotbat410.lol_team_balance_tool.service;
 
 import com.carrotbat410.lol_team_balance_tool.dto.AddSummonerRequestDTO;
+import com.carrotbat410.lol_team_balance_tool.dto.SummonerDTO;
 import com.carrotbat410.lol_team_balance_tool.dto.UpdateSummonerReqeustDTO;
 import com.carrotbat410.lol_team_balance_tool.dto.riot.RiotAccountDTO;
 import com.carrotbat410.lol_team_balance_tool.dto.riot.RiotLeagueEntryDTO;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -23,6 +25,15 @@ public class SummonerService {
 
     private final SummonerRepository summonerRepository;
     private final RiotApiClient riotApiClient;
+
+    public List<SummonerDTO> findSummoners() {
+        String userId = SecurityUtils.getCurrentUserIdFromAuthentication();
+        List<SummonerEntity> summonerEntityList = summonerRepository.findByUserId(userId);
+
+        return summonerEntityList.stream()
+                .map(SummonerDTO::fromEntity)
+                .collect(java.util.stream.Collectors.toList());
+    }
 
 
     public void saveSummoner(AddSummonerRequestDTO addSummonerRequestDTO) {
