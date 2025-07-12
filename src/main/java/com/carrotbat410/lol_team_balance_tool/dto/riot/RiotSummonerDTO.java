@@ -2,11 +2,12 @@ package com.carrotbat410.lol_team_balance_tool.dto.riot;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class RiotSummonerDTO {
     private String id;
     private String accountId;
