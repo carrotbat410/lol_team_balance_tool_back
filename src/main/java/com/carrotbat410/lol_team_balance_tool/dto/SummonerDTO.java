@@ -1,23 +1,34 @@
 package com.carrotbat410.lol_team_balance_tool.dto;
 
 import com.carrotbat410.lol_team_balance_tool.entity.SummonerEntity;
+import com.carrotbat410.lol_team_balance_tool.entity.Tier;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import com.carrotbat410.lol_team_balance_tool.entity.Tier;
-
 @Getter @Setter @Builder
+@Schema(description = "소환사 정보 DTO")
 public class SummonerDTO {
+    @Schema(description = "고유 번호", example = "1")
     private final Long no;
+    @Schema(description = "소환사 이름", example = "hide on bush")
     private final String summonerName;
+    @Schema(description = "태그 라인", example = "KR1")
     private final String tagLine;
+    @Schema(description = "티어", example = "CHALLENGER")
     private final Tier tier;
+    @Schema(description = "랭크", example = "1")
     private final Integer rank;
+    @Schema(description = "MMR", example = "31")
     private final int mmr;
+    @Schema(description = "소환사 레벨", example = "500")
     private final int summonerLevel;
+    @Schema(description = "승리 횟수", example = "100")
     private final int wins;
+    @Schema(description = "패배 횟수", example = "50")
     private final int losses;
+    @Schema(description = "프로필 아이콘 ID", example = "1234")
     private final int profileIconId;
 
     public static SummonerDTO fromEntity(SummonerEntity summonerEntity) {
