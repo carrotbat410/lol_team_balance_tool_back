@@ -12,6 +12,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -26,8 +29,8 @@ public class SummonerController {
 
     @GetMapping("/summoners")
     @Operation(summary = "내 소환사 목록 조회", description = "현재 로그인된 사용자의 소환사 목록을 조회합니다.")
-    public SuccessResponseDTO<List<SummonerDTO>> getMySummoners() {
-        List<SummonerDTO> summoners = summonerService.findSummoners();
+    public SuccessResponseDTO<Page<SummonerDTO>> getMySummoners(@PageableDefault(size = 30) Pageable pageable) {
+        Page<SummonerDTO> summoners = summonerService.findSummoners(pageable);
         return new SuccessResponseDTO<>("ok",summoners);
     }
 

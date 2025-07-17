@@ -16,6 +16,9 @@ import com.carrotbat410.lol_team_balance_tool.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -27,13 +30,11 @@ public class SummonerService {
     private final SummonerRepository summonerRepository;
     private final RiotApiClient riotApiClient;
 
-    public List<SummonerDTO> findSummoners() {
+    public Page<SummonerDTO> findSummoners(Pageable pageable) {
         String userId = SecurityUtils.getCurrentUserIdFromAuthentication();
-        List<SummonerEntity> summonerEntityList = summonerRepository.findByUserId(userId);
+        Page<SummonerEntity> summonerEntityPage = summonerRepository.findByUserId(userId, pageable);
 
-        return summonerEntityList.stream()
-                .map(SummonerDTO::fromEntity)
-                .collect(java.util.stream.Collectors.toList());
+        return summonerEntityPage.map(SummonerDTO::fromEntity);
     }
 
 
