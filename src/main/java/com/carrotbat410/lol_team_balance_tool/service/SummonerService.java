@@ -72,8 +72,7 @@ public class SummonerService {
     }
 
     private SummonerEntity createSummonerEntity(Long summonerNo, String userId, RiotAccountDTO account, RiotSummonerDTO summoner, RiotLeagueEntryDTO soloRank) {
-        String tierStr = Optional.ofNullable(soloRank).map(RiotLeagueEntryDTO::getTier).orElse("UNRANKED");
-        Tier tier = Tier.valueOf(tierStr);
+        Tier tier = Optional.ofNullable(soloRank).map(RiotLeagueEntryDTO::getTier).orElse(Tier.UNRANKED);
         String rank = Optional.ofNullable(soloRank).map(RiotLeagueEntryDTO::getRank).orElse(null);
         int mmr = calculateMmr(tier, rank);
 
