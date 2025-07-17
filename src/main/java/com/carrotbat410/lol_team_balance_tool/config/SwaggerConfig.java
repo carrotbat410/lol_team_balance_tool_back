@@ -18,6 +18,7 @@ public class SwaggerConfig {
                 .version("v1.0.0")
                 .description("LoL 팀 밸런스 도구 API 문서");
 
+        //TODO Spring Security 설정하기
         // Security 스키마 설정
 //        SecurityScheme securityScheme = new SecurityScheme()
 //                .type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")
