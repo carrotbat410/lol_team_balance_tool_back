@@ -17,6 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
@@ -63,15 +66,15 @@ class SummonerServiceTest {
         SummonerEntity summonerEntity = new SummonerEntity(1L, testUserId, "통티모바베큐", "0410", GOLD, 1, 13, 150, 55, 45, 123);
 
         given(SecurityUtils.getCurrentUserIdFromAuthentication()).willReturn(testUserId);
-        given(summonerRepository.findByUserId(testUserId)).willReturn(Collections.singletonList(summonerEntity));
+        given(summonerRepository.findByUserId(testUserId, PageRequest.of(0, 5))).willReturn(new PageImpl<>(Collections.singletonList(summonerEntity)));
 
         // when
-        List<SummonerDTO> result = summonerService.findSummoners();
+        Page<SummonerDTO> result = summonerService.findSummoners(PageRequest.of(0, 5));
 
         // then
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getSummonerName()).isEqualTo("통티모바베큐");
-        assertThat(result.get(0).getTier()).isEqualTo(GOLD);
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).getSummonerName()).isEqualTo("통티모바베큐");
+        assertThat(result.getContent().get(0).getTier()).isEqualTo(GOLD);
     }
 
     @Test
