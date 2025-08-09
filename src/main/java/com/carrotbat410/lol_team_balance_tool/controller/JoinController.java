@@ -1,6 +1,7 @@
 package com.carrotbat410.lol_team_balance_tool.controller;
 
 import com.carrotbat410.lol_team_balance_tool.dto.JoinDTO;
+import com.carrotbat410.lol_team_balance_tool.dto.response.SuccessResponseDTO;
 import com.carrotbat410.lol_team_balance_tool.service.JoinService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,14 +22,12 @@ public class JoinController {
 
     @PostMapping("/join")
     @Operation(summary = "회원가입", description = "사용자 ID와 비밀번호로 회원가입을 진행합니다.")
-    public String Join(@RequestBody JoinDTO joinDTO) {
+    public SuccessResponseDTO<Void> Join(@RequestBody JoinDTO joinDTO) {
 
         //TODO 입력값 검증 로직 추가하기(@Validated 이용)
 
-        String result = joinService.joinProcess(joinDTO);
+        joinService.joinProcess(joinDTO);
 
-        //TODO 반환 객체 만들어서 통일시키기?
-        if(result.equals("yes")) return "success";
-        else return "already exists";
+        return new SuccessResponseDTO<>("ok");
     }
 }

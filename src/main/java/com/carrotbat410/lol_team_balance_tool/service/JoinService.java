@@ -2,6 +2,7 @@ package com.carrotbat410.lol_team_balance_tool.service;
 
 import com.carrotbat410.lol_team_balance_tool.dto.JoinDTO;
 import com.carrotbat410.lol_team_balance_tool.entity.UserEntity;
+import com.carrotbat410.lol_team_balance_tool.exHandler.exception.DataConflictException;
 import com.carrotbat410.lol_team_balance_tool.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,14 +22,13 @@ public class JoinService {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
-    public String joinProcess(JoinDTO joinDTO) {
+    public void joinProcess(JoinDTO joinDTO) {
 
         //TODO 이미 동일한 username이 존재하는지 판단하는 로직 추가하기
 
-        boolean isUser = userRepository.existsByUserId(joinDTO.getUserId());
-        if (isUser) {
-            return "no"; //TODO 이부분 제대로 처리하기
-        }
+        boolean isExist = userRepository.existsByUserId(joinDTO.getUserId());
+
+        if (isExist) throw new DataConflictException();
 
         UserEntity data = new UserEntity();
 
@@ -37,7 +37,6 @@ public class JoinService {
         data.setRole("ROLE_USER");
 
         userRepository.save(data);
-        return "yes";
     }
 
 
