@@ -30,14 +30,7 @@ public class JWTUtil {
     }
 
     public Boolean isExpired(String token) {
-        try{
-            return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
-        }catch (ExpiredJwtException e) {
-            return true;
-        }catch (Exception e) {
-            System.out.println("JWT isExpired 메서드 실행 중 예외 발생: " + e.getMessage());
-            return false;
-        }
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
     public String createJwt(String username, String role, Long expiredMs) {
