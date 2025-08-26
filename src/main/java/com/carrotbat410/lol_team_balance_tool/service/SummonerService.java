@@ -14,13 +14,11 @@ import com.carrotbat410.lol_team_balance_tool.repository.SummonerRepository;
 import com.carrotbat410.lol_team_balance_tool.riot.RiotApiClient;
 import com.carrotbat410.lol_team_balance_tool.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -70,6 +68,15 @@ public class SummonerService {
 
         SummonerEntity summonerEntity = createSummonerEntity(summonerNo, userId, account, summoner, soloRank);
         summonerRepository.save(summonerEntity);
+    }
+
+    @Transactional
+    public void deleteSummoner(Long no){
+        String userId = SecurityUtils.getCurrentUserIdFromAuthentication();
+        long deletedCount = summonerRepository.deleteByNoAndUserId(no, userId);
+        if (deletedCount == 0) {
+            throw new NotFoundDataException("소환사를 찾을 수 없거나 삭제할 권한이 없습니다.");
+        }
     }
 
     private SummonerEntity createSummonerEntity(Long summonerNo, String userId, RiotAccountDTO account, RiotSummonerDTO summoner, RiotLeagueEntryDTO soloRank) {

@@ -4,12 +4,9 @@ import com.carrotbat410.lol_team_balance_tool.dto.AddSummonerRequestDTO;
 import com.carrotbat410.lol_team_balance_tool.dto.SummonerDTO;
 import com.carrotbat410.lol_team_balance_tool.dto.UpdateSummonerReqeustDTO;
 import com.carrotbat410.lol_team_balance_tool.dto.response.SuccessResponseDTO;
-import com.carrotbat410.lol_team_balance_tool.entity.SummonerEntity;
 import com.carrotbat410.lol_team_balance_tool.service.SummonerService;
-import com.carrotbat410.lol_team_balance_tool.utils.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -17,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -48,6 +44,15 @@ public class SummonerController {
     public SuccessResponseDTO<Void> updateSummoner(@RequestBody @Validated UpdateSummonerReqeustDTO updateSummonerReqeustDTO) {
 
         summonerService.updateSummoner(updateSummonerReqeustDTO);
+
+        return new SuccessResponseDTO<>();
+    }
+
+    @DeleteMapping("/summoner")
+    @Operation(summary = "소환사 정보 삭제", description = "소환사의 고유 ID(no)를 받아 정보를 삭제합니다.")
+    public SuccessResponseDTO<Void> deleteSummoner(@RequestParam("no") Long no) {
+
+        summonerService.deleteSummoner(no);
 
         return new SuccessResponseDTO<>();
     }

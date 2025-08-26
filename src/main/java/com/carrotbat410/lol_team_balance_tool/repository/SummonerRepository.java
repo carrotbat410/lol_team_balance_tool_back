@@ -27,5 +27,7 @@ public interface SummonerRepository extends JpaRepository<SummonerEntity, Long> 
             "AND UPPER(s.tagLine) = UPPER(:tagLine)")
     Optional<Long> findNoByUserIdAndSummonerNameAndTagLineIgnoreCaseAndNoSpaces(@Param("userId") String userId, @Param("summonerName") String summonerName, @Param("tagLine") String tagLine);
 
+    long deleteByNoAndUserId(Long no, String userId);
+
 }
 
