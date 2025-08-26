@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Getter @Setter @Builder
@@ -36,9 +37,16 @@ public class SummonerDTO {
     private final LocalDateTime created_at;
     @Schema(description = "수정일")
     private final LocalDateTime updated_at;
+    @Schema(description = "업데이트 가능 여부", example = "true")
+    private final boolean isUpdatable;
 
 
     public static SummonerDTO fromEntity(SummonerEntity summonerEntity) {
+        boolean isUpdatable = false;
+        if (summonerEntity.getUpdated_at() != null) {
+            isUpdatable = Duration.between(summonerEntity.getUpdated_at(), LocalDateTime.now()).toDays() > 0;
+        }
+
         //* builder 사용 후기: 순서에 맞게 필드값들 안넣어도 되고, 필드명에 의존하여 맵핑이 이루어져서 가독성도 좋은듯
         return SummonerDTO.builder()
                 .no(summonerEntity.getNo())
@@ -53,6 +61,7 @@ public class SummonerDTO {
                 .profileIconId(summonerEntity.getIconId())
                 .created_at(summonerEntity.getCreated_at())
                 .updated_at(summonerEntity.getUpdated_at())
+                .isUpdatable(isUpdatable)
                 .build();
     }
 
