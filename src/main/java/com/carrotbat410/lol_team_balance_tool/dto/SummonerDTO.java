@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter @Setter @Builder
 @Schema(description = "소환사 정보 DTO")
 public class SummonerDTO {
@@ -30,6 +32,11 @@ public class SummonerDTO {
     private final int losses;
     @Schema(description = "프로필 아이콘 ID", example = "1234")
     private final int profileIconId;
+    @Schema(description = "생성일")
+    private final LocalDateTime created_at;
+    @Schema(description = "수정일")
+    private final LocalDateTime updated_at;
+
 
     public static SummonerDTO fromEntity(SummonerEntity summonerEntity) {
         //* builder 사용 후기: 순서에 맞게 필드값들 안넣어도 되고, 필드명에 의존하여 맵핑이 이루어져서 가독성도 좋은듯
@@ -44,6 +51,8 @@ public class SummonerDTO {
                 .wins(summonerEntity.getWins())
                 .losses(summonerEntity.getLosses())
                 .profileIconId(summonerEntity.getIconId())
+                .created_at(summonerEntity.getCreated_at())
+                .updated_at(summonerEntity.getUpdated_at())
                 .build();
     }
 
