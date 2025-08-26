@@ -47,8 +47,8 @@ public class SummonerService {
         boolean isExist = summonerRepository.existsByUserIdAndSummonerNameAndTagLineIgnoreCaseAndNoSpaces(userId, summonerName, tagLine);
         if (isExist) throw new DataConflictException("이미 등록된 소환사입니다.");
 
-        RiotAccountDTO account = riotApiClient.fetchAccountByRiotId(summonerName, tagLine).block();
-        RiotSummonerDTO summoner = riotApiClient.fetchSummonerByPuuid(account.getPuuid()).block();
+        RiotAccountDTO account = riotApiClient.fetchAccountByRiotId(summonerName, tagLine).block(); //! aaaaaaa#1234 검색시 fetchAccountByRiotId api는 요청되는데,
+        RiotSummonerDTO summoner = riotApiClient.fetchSummonerByPuuid(account.getPuuid()).block(); //! fetchSummonerByPuuid에서 404 나는 경우가 있더라.(riot계정은 있는데, 롤 소환사계정은 없는 경우인듯)
         RiotLeagueEntryDTO soloRank = riotApiClient.fetchSoloRankLeagueEntryByPuuid(account.getPuuid()).block();
 
         SummonerEntity summonerEntity = createSummonerEntity(null, userId, account, summoner, soloRank);

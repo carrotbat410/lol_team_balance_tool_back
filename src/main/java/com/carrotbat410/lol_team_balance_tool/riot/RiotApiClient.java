@@ -38,6 +38,8 @@ public class RiotApiClient {
         return krWebClient.get()
                 .uri("/lol/summoner/v4/summoners/by-puuid/{puuid}?api_key={apiKey}", puuid, riotApiKey)
                 .retrieve()
+                .onStatus(httpStatus -> httpStatus.is4xxClientError(),
+                        clientResponse -> Mono.error(new RiotApiNotFoundException("Riot API request failed with status code: " + clientResponse.statusCode())))
                 .bodyToMono(RiotSummonerDTO.class);
     }
 
@@ -45,6 +47,8 @@ public class RiotApiClient {
         return krWebClient.get()
                 .uri("/lol/league/v4/entries/by-puuid/{puuid}?api_key={apiKey}", puuid, riotApiKey)
                 .retrieve()
+                .onStatus(httpStatus -> httpStatus.is4xxClientError(),
+                        clientResponse -> Mono.error(new RiotApiNotFoundException("Riot API request failed with status code: " + clientResponse.statusCode() + " | message:" + clientResponse)))
                 .bodyToMono(RiotLeagueEntryDTO[].class)
                 .flatMap(leagueEntries ->
                         java.util.Arrays.stream(leagueEntries)
