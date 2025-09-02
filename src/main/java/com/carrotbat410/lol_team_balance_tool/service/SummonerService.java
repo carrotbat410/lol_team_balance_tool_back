@@ -54,7 +54,7 @@ public class SummonerService {
         return SummonerDTO.fromEntity(save);
     }
 
-    public void updateSummoner(UpdateSummonerReqeustDTO updateSummonerReqeustDTO){
+    public SummonerDTO updateSummoner(UpdateSummonerReqeustDTO updateSummonerReqeustDTO){
         String userId = SecurityUtils.getCurrentUserIdFromAuthentication();
         String summonerName = updateSummonerReqeustDTO.getSummonerName().trim();
         String tagLine = updateSummonerReqeustDTO.getTagLine().trim();
@@ -68,6 +68,8 @@ public class SummonerService {
 
         SummonerEntity summonerEntity = createSummonerEntity(summonerNo, userId, account, summoner, soloRank);
         summonerRepository.save(summonerEntity);
+        SummonerDTO summonerDTO = SummonerDTO.fromEntity(summonerEntity);
+        return summonerDTO;
     }
 
     @Transactional

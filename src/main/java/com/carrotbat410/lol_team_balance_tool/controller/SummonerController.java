@@ -41,11 +41,11 @@ public class SummonerController {
 
     @PatchMapping("/summoner")
     @Operation(summary = "소환사 정보 수정", description = "소환사 이름과 태그라인으로 등록된 소환사의 정보를 업데이트합니다.")
-    public SuccessResponseDTO<Void> updateSummoner(@RequestBody @Validated UpdateSummonerReqeustDTO updateSummonerReqeustDTO) {
+    public SuccessResponseDTO<SummonerDTO> updateSummoner(@RequestBody @Validated UpdateSummonerReqeustDTO updateSummonerReqeustDTO) {
 
-        summonerService.updateSummoner(updateSummonerReqeustDTO);
+        SummonerDTO summonerDTO = summonerService.updateSummoner(updateSummonerReqeustDTO);
 
-        return new SuccessResponseDTO<>();
+        return new SuccessResponseDTO<>("ok", summonerDTO);
     }
 
     @DeleteMapping("/summoner")
