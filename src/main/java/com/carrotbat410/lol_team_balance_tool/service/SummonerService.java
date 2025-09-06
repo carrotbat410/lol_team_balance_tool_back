@@ -10,6 +10,7 @@ import com.carrotbat410.lol_team_balance_tool.entity.SummonerEntity;
 import com.carrotbat410.lol_team_balance_tool.entity.Tier;
 import com.carrotbat410.lol_team_balance_tool.exHandler.exception.DataConflictException;
 import com.carrotbat410.lol_team_balance_tool.exHandler.exception.NotFoundDataException;
+import com.carrotbat410.lol_team_balance_tool.exHandler.exception.UnprocessableContentException;
 import com.carrotbat410.lol_team_balance_tool.repository.SummonerRepository;
 import com.carrotbat410.lol_team_balance_tool.riot.RiotApiClient;
 import com.carrotbat410.lol_team_balance_tool.utils.SecurityUtils;
@@ -27,6 +28,7 @@ public class SummonerService {
 
     private final SummonerRepository summonerRepository;
     private final RiotApiClient riotApiClient;
+    private final long maxAddCount = 15;
 
     public Page<SummonerDTO> findSummoners(Pageable pageable) {
         String userId = SecurityUtils.getCurrentUserIdFromAuthentication();
@@ -39,6 +41,11 @@ public class SummonerService {
     public SummonerDTO saveSummoner(AddSummonerRequestDTO addSummonerRequestDTO) {
 
         String userId = SecurityUtils.getCurrentUserIdFromAuthentication();
+
+        long summonerCount = summonerRepository.countByUserId(userId);
+        if (summonerCount >= maxAddCount) throw new UnprocessableContentException("최대 추가 가능한 소환사인원수는 "+maxAddCount+"명입니다.");
+
+
         String summonerName = addSummonerRequestDTO.getSummonerName().trim();
         String tagLine = addSummonerRequestDTO.getTagLine().trim();
 

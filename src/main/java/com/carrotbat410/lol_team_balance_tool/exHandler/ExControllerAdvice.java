@@ -4,6 +4,7 @@ import com.carrotbat410.lol_team_balance_tool.dto.response.ErrorResponseDTO;
 import com.carrotbat410.lol_team_balance_tool.exHandler.exception.DataConflictException;
 import com.carrotbat410.lol_team_balance_tool.exHandler.exception.NotFoundDataException;
 import com.carrotbat410.lol_team_balance_tool.exHandler.exception.RiotApiNotFoundException;
+import com.carrotbat410.lol_team_balance_tool.exHandler.exception.UnprocessableContentException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -31,6 +32,12 @@ public class ExControllerAdvice {
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler
     public ErrorResponseDTO dataConflictException(DataConflictException e) {
+        return new ErrorResponseDTO(e.getCode(), e.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ExceptionHandler
+    public ErrorResponseDTO unprocessableContentException(UnprocessableContentException e) {
         return new ErrorResponseDTO(e.getCode(), e.getMessage());
     }
 
