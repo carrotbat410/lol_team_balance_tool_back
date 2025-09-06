@@ -30,3 +30,5 @@ out/
 /dist/
 /nbdist/
 /.nb-gradle/
+/schema_dump.sql
+/src/main/resources/application.properties
