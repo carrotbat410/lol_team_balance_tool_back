@@ -28,7 +28,7 @@ public class SummonerService {
 
     private final SummonerRepository summonerRepository;
     private final RiotApiClient riotApiClient;
-    private final long maxAddCount = 15;
+    private final long maxAddCount = 30;
 
     public Page<SummonerDTO> findSummoners(Pageable pageable) {
         String userId = SecurityUtils.getCurrentUserIdFromAuthentication();
