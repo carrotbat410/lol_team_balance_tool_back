@@ -26,7 +26,7 @@ public class TeamBalanceResponseDTO {
         this.team1AvgTierRank = mmrToTierRank(team1AvgMmr);
 
         // team2
-        float team2SumMmr = team1List.stream().mapToInt(SummonerDTO::getMmr).sum();
+        float team2SumMmr = team2List.stream().mapToInt(SummonerDTO::getMmr).sum();
         int team2AvgMmr = Math.round(team2SumMmr / 5);
         this.team2AvgTierRank = mmrToTierRank(team2AvgMmr);
 
