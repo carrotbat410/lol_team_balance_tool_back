@@ -44,6 +44,14 @@ jobs:
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/lol-team-balance-tool-back:latest
 
     # 7. EC2에 배포
+    - name: Verify EC2_PRIVATE_KEY secret
+      run: |
+        if [ -z "${{ secrets.EC2_PRIVATE_KEY }}" ]; then
+          echo "EC2_PRIVATE_KEY secret is empty or not set."
+          exit 1
+        else
+          echo "EC2_PRIVATE_KEY secret is set (content not shown for security)."
+        fi
     - name: Deploy to EC2 instance
       uses: appleboy/ssh-action@master
       with:
@@ -51,7 +59,7 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
-          cd ${{ secrets.DOCKER_COMPOSE_FILE_PATH }}
+          cd ${{ secrets.DEPLOY_PATH }}
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/lol-team-balance-tool-back:latest
           docker-compose up -d --remove-orphans
           docker image prune -f
