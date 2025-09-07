@@ -53,8 +53,8 @@ jobs:
         script: |
           script: |
           sudo -s <<'EOF'
-          cd ${{ secrets.DEPLOY_PATH }}
+          cd ${{ secrets.DOCKER_COMPOSE_FILE_PATH }}
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/lol-team-balance-tool-back:latest
-          docker-compose up -d --remove-orphans
+          docker compose up -d --remove-orphans
           docker image prune -f
           EOF
