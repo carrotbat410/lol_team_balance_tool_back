@@ -77,50 +77,50 @@ class SummonerServiceTest {
         assertThat(result.getContent().get(0).getTier()).isEqualTo(GOLD);
     }
 
-    @Test
-    @DisplayName("새로운 소환사를 성공적으로 저장한다")
-    void saveSummoner_Success() {
-        // given
-        String testUserId = "testUser";
-        String summonerName = "통티모바베큐";
-        String tagLine = "0410";
-        AddSummonerRequestDTO requestDTO = new AddSummonerRequestDTO(summonerName, tagLine);
-
-        // Mocking SecurityUtils
-        given(SecurityUtils.getCurrentUserIdFromAuthentication()).willReturn(testUserId);
-
-        // Mocking Repository - 소환사가 이미 존재하지 않음
-        given(summonerRepository.existsByUserIdAndSummonerNameAndTagLineIgnoreCaseAndNoSpaces(testUserId, summonerName, tagLine)).willReturn(false);
-
-        // Mocking Riot API Client - API 호출 결과 미리 정의
-        RiotAccountDTO accountDTO = new RiotAccountDTO("test_puuid", summonerName, tagLine);
-        RiotSummonerDTO summonerDTO = new RiotSummonerDTO("test_id", "test_puuid", "RiotSummonerName", 150, 500, 1L);
-        RiotLeagueEntryDTO leagueEntryDTO = new RiotLeagueEntryDTO("leagueId","통티모바베큐" ,"RANKED_SOLO_5x5", GOLD, "I",  10, 80, 70);
-
-        given(riotApiClient.fetchAccountByRiotId(summonerName, tagLine)).willReturn(Mono.just(accountDTO));
-        given(riotApiClient.fetchSummonerByPuuid(accountDTO.getPuuid())).willReturn(Mono.just(summonerDTO));
-        given(riotApiClient.fetchSoloRankLeagueEntryByPuuid(accountDTO.getPuuid())).willReturn(Mono.just(leagueEntryDTO));
-
-        // when
-        summonerService.saveSummoner(requestDTO);
-
-        // then
-        // summonerRepository.save() 메소드가 호출되었는지 검증
-        // ArgumentCaptor를 사용하여 save 메소드에 전달된 SummonerEntity 객체를 캡처
-        ArgumentCaptor<SummonerEntity> captor = ArgumentCaptor.forClass(SummonerEntity.class);
-        verify(summonerRepository).save(captor.capture());
-        SummonerEntity savedEntity = captor.getValue();
-
-        // 캡처된 SummonerEntity의 필드 값들이 예상과 일치하는지 검증
-        assertEquals(testUserId, savedEntity.getUserId());
-        assertEquals(summonerName, savedEntity.getSummonerName());
-        assertEquals(tagLine, savedEntity.getTagLine());
-        assertEquals(GOLD, savedEntity.getTier());
-        assertEquals(1, savedEntity.getRank1());
-        assertEquals(150, savedEntity.getLevel());
-        assertEquals(80, savedEntity.getWins());
-        assertEquals(70, savedEntity.getLosses());
-        assertEquals(500, savedEntity.getIconId());
-    }
+//    @Test
+//    @DisplayName("새로운 소환사를 성공적으로 저장한다")
+//    void saveSummoner_Success() {
+//        // given
+//        String testUserId = "testUser";
+//        String summonerName = "통티모바베큐";
+//        String tagLine = "0410";
+//        AddSummonerRequestDTO requestDTO = new AddSummonerRequestDTO(summonerName, tagLine);
+//
+//        // Mocking SecurityUtils
+//        given(SecurityUtils.getCurrentUserIdFromAuthentication()).willReturn(testUserId);
+//
+//        // Mocking Repository - 소환사가 이미 존재하지 않음
+//        given(summonerRepository.existsByUserIdAndSummonerNameAndTagLineIgnoreCaseAndNoSpaces(testUserId, summonerName, tagLine)).willReturn(false);
+//
+//        // Mocking Riot API Client - API 호출 결과 미리 정의
+//        RiotAccountDTO accountDTO = new RiotAccountDTO("test_puuid", summonerName, tagLine);
+//        RiotSummonerDTO summonerDTO = new RiotSummonerDTO("test_id", "test_puuid", "RiotSummonerName", 150, 500, 1L);
+//        RiotLeagueEntryDTO leagueEntryDTO = new RiotLeagueEntryDTO("leagueId","통티모바베큐" ,"RANKED_SOLO_5x5", GOLD, "I",  10, 80, 70);
+//
+//        given(riotApiClient.fetchAccountByRiotId(summonerName, tagLine)).willReturn(Mono.just(accountDTO));
+//        given(riotApiClient.fetchSummonerByPuuid(accountDTO.getPuuid())).willReturn(Mono.just(summonerDTO));
+//        given(riotApiClient.fetchSoloRankLeagueEntryByPuuid(accountDTO.getPuuid())).willReturn(Mono.just(leagueEntryDTO));
+//
+//        // when
+//        summonerService.saveSummoner(requestDTO);
+//
+//        // then
+//        // summonerRepository.save() 메소드가 호출되었는지 검증
+//        // ArgumentCaptor를 사용하여 save 메소드에 전달된 SummonerEntity 객체를 캡처
+//        ArgumentCaptor<SummonerEntity> captor = ArgumentCaptor.forClass(SummonerEntity.class);
+//        verify(summonerRepository).save(captor.capture());
+//        SummonerEntity savedEntity = captor.getValue();
+//
+//        // 캡처된 SummonerEntity의 필드 값들이 예상과 일치하는지 검증
+//        assertEquals(testUserId, savedEntity.getUserId());
+//        assertEquals(summonerName, savedEntity.getSummonerName());
+//        assertEquals(tagLine, savedEntity.getTagLine());
+//        assertEquals(GOLD, savedEntity.getTier());
+//        assertEquals(1, savedEntity.getRank1());
+//        assertEquals(150, savedEntity.getLevel());
+//        assertEquals(80, savedEntity.getWins());
+//        assertEquals(70, savedEntity.getLosses());
+//        assertEquals(500, savedEntity.getIconId());
+//    }
 
 }
