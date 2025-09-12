@@ -51,10 +51,5 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
-          script: |
-          sudo -s <<'EOF'
-          cd ${{ secrets.DOCKER_COMPOSE_FILE_PATH }}
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/lol-team-balance-tool-back:latest
-          docker compose up -d --remove-orphans
-          docker image prune -f
-          EOF
+          cd /home/ubuntu/lol_team_balance_tool_back
+          ./deploy.sh ${{ secrets.DOCKERHUB_USERNAME }}
