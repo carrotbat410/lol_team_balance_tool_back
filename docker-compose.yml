@@ -47,11 +47,8 @@ services:
       - ./nginx/service-url.inc:/etc/nginx/conf.d/service-url.inc
     networks:
       - app-network
-    depends_on:
-      - blue1
-      - blue2
-      - green1
-      - green2
+    networks:
+      - app-network
     restart: always
 
 networks:
