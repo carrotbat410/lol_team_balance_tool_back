@@ -32,4 +32,4 @@ out/
 /.nb-gradle/
 /schema_dump.sql
 /src/main/resources/application.properties
-/docker-compose.yml
+#/docker-compose.yml
