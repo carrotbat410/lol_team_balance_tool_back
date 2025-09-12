@@ -15,7 +15,7 @@ BLUE_PORTS=(8081 8082)
 GREEN_PORTS=(8083 8084)
 
 # 현재 활성화된 그룹 확인 (blue1 컨테이너 존재 여부로 판단)
-EXISTING_BLUE=$(docker-compose ps -q blue1)
+EXISTING_BLUE=$(docker compose ps -q blue1)
 
 if [ -n "$EXISTING_BLUE" ]; then
     CURRENT_SERVICES=$BLUE_SERVICES
