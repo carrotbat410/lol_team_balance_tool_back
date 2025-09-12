@@ -36,13 +36,13 @@ fi
 echo "### Current active group is ${CURRENT_COLOR} ###"
 
 # 1. 새 버전의 Docker 이미지 pull
-# docker-compose.yml에 정의된 모든 서비스의 이미지를 한번에 pull 합니다.
+# docker compose.yml에 정의된 모든 서비스의 이미지를 한번에 pull 합니다.
 echo "### Pulling new images ###"
-docker-compose pull
+docker compose pull
 
 # 2. 새 버전의 컨테이너(그룹) 실행
 echo "### Starting ${NEW_COLOR} group ###"
-docker-compose up -d --no-deps $NEW_SERVICES
+docker compose up -d --no-deps $NEW_SERVICES
 
 # 3. Health check
 echo "### Health checking ${NEW_COLOR} group ###"
@@ -72,11 +72,11 @@ for i in {1..15}; do
         echo $NEW_UPSTREAM_CONFIG | sudo tee /home/ubuntu/lol_team_balance_tool_back/nginx/service-url.inc
         
         # 5. Nginx 리로드
-        docker-compose exec nginx nginx -s reload
+        docker compose exec nginx nginx -s reload
         
         # 6. 이전 버전 컨테이너(그룹) 중지
         echo "### Stopping ${CURRENT_COLOR} group ###"
-        docker-compose stop $CURRENT_SERVICES
+        docker compose stop $CURRENT_SERVICES
         
         echo "### Deployment successful ###"
         exit 0
@@ -87,5 +87,5 @@ for i in {1..15}; do
 done
 
 echo "### ${NEW_COLOR} group health check failed. Rolling back. ###"
-docker-compose stop $NEW_SERVICES
+docker compose stop $NEW_SERVICES
 exit 1
