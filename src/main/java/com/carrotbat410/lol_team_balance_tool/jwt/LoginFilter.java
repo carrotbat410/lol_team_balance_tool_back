@@ -28,7 +28,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         this.jwtUtil = jwtUtil;
 
         setUsernameParameter("userId");
-//        setFilterProcessesUrl("/login"); // 로그인 요청 URL 설정
+        setFilterProcessesUrl("/api/login"); // 로그인 요청 URL 설정 (default: /login) <- nginx/default.conf 설정떄문에, 모든 백엔드 api는 /api 붙이는게 좋더라
     }
 
     @Override
