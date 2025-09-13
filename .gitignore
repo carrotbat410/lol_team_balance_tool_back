@@ -33,3 +33,4 @@ out/
 /schema_dump.sql
 /src/main/resources/application.properties
 #/docker-compose.yml
+.env
