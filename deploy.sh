@@ -1,10 +1,26 @@
 #!/bin/bash
 # 백엔드 배포 쉘 스크립트. (프론트엔드는 deploy-frontend.sh)
 
-# GitHub Actions에서 전달받은 Docker Hub 사용자 이름을 환경변수로 설정
+# GitHub Actions에서 전달받은 환경 변수들을 설정
 export DOCKERHUB_USERNAME=$1
-if [ -z "$DOCKERHUB_USERNAME" ]; then
-    echo "Docker Hub username must be provided as the first argument." >&2
+export SPRING_DATASOURCE_URL=$2
+export SPRING_DATASOURCE_USERNAME=$3
+export SPRING_DATASOURCE_PASSWORD=$4
+export SPRING_JWT_SECRET=$5
+export RIOT_API_BASE_URL_KR=$6
+export RIOT_API_BASE_URL_ASIA=$7
+export RIOT_API_KEY=$8
+
+# 필수 환경 변수 검증
+if [ -z "$DOCKERHUB_USERNAME" ] || \
+   [ -z "$SPRING_DATASOURCE_URL" ] || \
+   [ -z "$SPRING_DATASOURCE_USERNAME" ] || \
+   [ -z "$SPRING_DATASOURCE_PASSWORD" ] || \
+   [ -z "$SPRING_JWT_SECRET" ] || \
+   [ -z "$RIOT_API_BASE_URL_KR" ] || \
+   [ -z "$RIOT_API_BASE_URL_ASIA" ] || \
+   [ -z "$RIOT_API_KEY" ]; then
+    echo "All required environment variables must be provided." >&2
     exit 1
 fi
 

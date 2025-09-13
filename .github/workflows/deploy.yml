@@ -56,4 +56,4 @@ jobs:
           git fetch origin
           git reset --hard origin/main
           sudo chmod +x ./deploy.sh
-          sudo bash ./deploy.sh ${{ secrets.DOCKERHUB_USERNAME }}
+          sudo bash ./deploy.sh ${{ secrets.DOCKERHUB_USERNAME }} ${{ secrets.SPRING_DATASOURCE_URL }} ${{ secrets.SPRING_DATASOURCE_USERNAME }} ${{ secrets.SPRING_DATASOURCE_PASSWORD }} ${{ secrets.SPRING_JWT_SECRET }} ${{ secrets.RIOT_API_BASE_URL_KR }} ${{ secrets.RIOT_API_BASE_URL_ASIA }} ${{ secrets.RIOT_API_KEY }}
