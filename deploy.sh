@@ -54,7 +54,7 @@ TOTAL_NEW_SERVICES=$(echo $NEW_SERVICES | wc -w)
 for i in {1..15}; do
     HEALTHY_COUNT=0
     for PORT in "${NEW_PORTS[@]}"; do
-        HEALTH_CHECK_URL="http://127.0.0.1:${PORT}/tmpHealthCheck"
+        HEALTH_CHECK_URL="http://127.0.0.1:${PORT}/api/tmpHealthCheck"
         RESPONSE_CODE=$(curl -s -o /dev/null -w "%{http_code}" $HEALTH_CHECK_URL)
         
         if [ $RESPONSE_CODE -eq 200 ]; then
