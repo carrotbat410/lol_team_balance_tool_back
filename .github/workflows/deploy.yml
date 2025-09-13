@@ -2,7 +2,7 @@ name: Java CI/CD with Gradle and Docker
 
 on:
   push:
-    branches: [ "main" ] # main 브랜치에 push 또는 merge될 때 워크플로우 실행
+    branches: [ "main" ]
 
 jobs:
   build-and-deploy:
