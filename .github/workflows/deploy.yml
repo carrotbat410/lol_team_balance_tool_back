@@ -53,4 +53,4 @@ jobs:
         script: |
           script: |
           cd /home/ubuntu/lol_team_balance_tool_back
-          sudo bash ./deploy.sh ${{ secrets.DOCKERHUB_USERNAME }}
+          sudo bash deploy.sh ${{ secrets.DOCKERHUB_USERNAME }}
