@@ -90,6 +90,7 @@ for i in {1..15}; do
     sleep 10
 done
 
+#확인용 주석
 echo "### ${NEW_COLOR} group health check failed. Rolling back. ###"
 docker compose stop $NEW_SERVICES
 exit 1

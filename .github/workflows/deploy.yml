@@ -52,6 +52,9 @@ jobs:
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
           cd /home/ubuntu/lol_team_balance_tool_back
-          git pull
+# 원격 저장소의 최신 내역 가져오기.
+          git fetch origin
+# 로컬의 모든 변경사항을 무시하고, 원격 저장소의 main 브랜치 상태로 강제로 덮어쓰는 명령어
+          git reset --hard origin/main
           sudo chmod +x ./deploy.sh
           sudo bash ./deploy.sh ${{ secrets.DOCKERHUB_USERNAME }}
