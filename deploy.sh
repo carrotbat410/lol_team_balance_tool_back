@@ -77,6 +77,10 @@ for i in {1..15}; do
         # 6. 이전 버전 컨테이너(그룹) 중지
         echo "### Stopping ${CURRENT_COLOR} group ###"
         docker compose stop $CURRENT_SERVICES
+
+        # 7. 사용하지 않는 Docker 이미지 정리 (tag가 <none> 으로 변한 이미지들)
+        echo "### Pruning old images ###"
+        docker image prune -f
         
         echo "### Deployment successful ###"
         exit 0
