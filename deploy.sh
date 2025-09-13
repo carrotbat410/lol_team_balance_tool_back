@@ -1,4 +1,5 @@
 #!/bin/bash
+# 백엔드 배포 쉘 스크립트. (프론트엔드는 deploy-frontend.sh)
 
 # GitHub Actions에서 전달받은 Docker Hub 사용자 이름을 환경변수로 설정
 export DOCKERHUB_USERNAME=$1

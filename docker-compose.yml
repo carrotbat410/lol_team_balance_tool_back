@@ -1,6 +1,13 @@
 version: "3.8"
 
 services:
+  frontend:
+    image: ${DOCKERHUB_USERNAME}/lol_team_balance_tool_front:latest
+    container_name: lol-front
+    networks:
+      - app-network
+    restart: always
+
   blue1:
     image: ${DOCKERHUB_USERNAME}/lol-team-balance-tool-back:latest
     container_name: lol-back-blue1
