@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/api")
 @Tag(name = "SummonerController", description = "소환사 관련 컨트롤러")
 public class SummonerController {
 

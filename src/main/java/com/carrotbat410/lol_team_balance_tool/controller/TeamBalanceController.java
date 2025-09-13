@@ -23,7 +23,7 @@ import static com.carrotbat410.lol_team_balance_tool.dto.TeamAssignMode.*;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/team")
+@RequestMapping("/api/team")
 public class TeamBalanceController {
 
     @PostMapping("/balance")

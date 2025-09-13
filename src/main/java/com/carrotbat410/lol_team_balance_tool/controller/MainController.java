@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
@@ -14,6 +15,7 @@ import java.util.Iterator;
 
 
 @RestController
+@RequestMapping("/api")
 @Tag(name = "MainController", description = "메인 컨트롤러")
 public class MainController {
 
