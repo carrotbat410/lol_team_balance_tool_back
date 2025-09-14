@@ -35,6 +35,7 @@ public class SummonerController {
     @Operation(summary = "소환사 추가", description = "소환사 이름과 태그라인으로 소환사를 추가합니다.")
     public SuccessResponseDTO<SummonerDTO> addSummonerWithSummonerNameAndTagLine(@RequestBody @Validated AddSummonerRequestDTO addSummonerRequestDTO) {
 
+        System.out.println("111111111111111111111111111 : controller");
         SummonerDTO summonerDTO = summonerService.saveSummoner(addSummonerRequestDTO);
 
         return new SuccessResponseDTO<>("ok", summonerDTO);
