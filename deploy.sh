@@ -70,7 +70,7 @@ for i in {1..15}; do
         
         # 4. Nginx 설정 변경
         echo "### Switching Nginx to ${NEW_COLOR} group ###"
-        echo $NEW_UPSTREAM_CONFIG | sudo tee /home/ubuntu/lol_team_balance_tool_back/nginx/service-url.inc
+        echo $NEW_UPSTREAM_CONFIG | sudo tee /home/ubuntu/lol_team_balance_tool_back/nginx/service-url.inc # 동적으로 nginx/service-url.inc 생성. 직접 만드는게 아님!!!
         
         # 5. Nginx 리로드
         docker compose exec nginx nginx -s reload
