@@ -49,6 +49,11 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
+        if (token.equals("undefined")) {
+            filterChain.doFilter(request, response);
+            return; // 다음 필터로 넘기고 메서드 종료
+        }
+
         // 4. 토큰 검증 (파싱 과정에서 모든 JWT 예외 처리)
         try {
             // 토큰 만료 여부 확인 (만료 시 ExpiredJwtException 발생)
