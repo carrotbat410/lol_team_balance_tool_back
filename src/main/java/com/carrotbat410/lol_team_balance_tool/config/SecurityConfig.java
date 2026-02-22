@@ -58,7 +58,7 @@ public class SecurityConfig {
 
                         CorsConfiguration configuration = new CorsConfiguration();
 
-                        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://lolcivilwarhelper.site", "http://www.lolcivilwarhelper.site", "https://lolcivilwarhelper.site", "https://www.lolcivilwarhelper.site"));
+                        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://168.107.33.123:3000", "http://lolcivilwarhelper.site", "http://www.lolcivilwarhelper.site", "https://lolcivilwarhelper.site", "https://www.lolcivilwarhelper.site"));
                         configuration.setAllowedMethods(Collections.singletonList("*"));
                         configuration.setAllowCredentials(true);
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
