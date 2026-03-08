@@ -18,7 +18,7 @@ public class CorsMvcConfig implements WebMvcConfigurer {
                 .allowedOrigins(
                         "http://localhost:3000",
                         "http://168.107.33.123:3000",
-                        "http://lolcivilwarhelper.kro.kr",
+                        "http://lolcivilwarhelper.kro.kr:3000",
                         "https://lolcivilwarhelper.kro.kr"
                 );
     }
