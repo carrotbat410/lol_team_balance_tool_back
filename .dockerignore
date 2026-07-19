@@ -1,0 +1,12 @@
+.git
+.gradle
+build
+.DS_Store
+.idea
+.vscode
+.env
+src/main/resources/application.properties
+*.log
+*.dump
+*.sql
+!sql/*.sql

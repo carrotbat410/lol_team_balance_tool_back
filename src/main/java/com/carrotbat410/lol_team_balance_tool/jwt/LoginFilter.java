@@ -71,6 +71,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("token", token);
         responseBody.put("username", username);
+        responseBody.put("role", role);
 
         ObjectMapper objectMapper = new ObjectMapper();
         response.getWriter().write(objectMapper.writeValueAsString(responseBody));
