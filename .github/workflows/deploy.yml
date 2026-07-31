@@ -62,9 +62,7 @@ jobs:
           ssh -p "$APP_SERVER_PORT" -i ~/.ssh/app_server_key "$APP_SERVER_USER@$APP_SERVER_HOST" <<'REMOTE'
             set -e
             cd /home/ubuntu/app-stack
-            echo '${{ secrets.GITHUB_TOKEN }}' | sudo docker login ghcr.io -u '${{ github.actor }}' --password-stdin
             sudo docker compose pull lol-back
             sudo docker compose up -d --no-deps lol-back
-            sudo docker logout ghcr.io || true
             sudo docker image prune -f
           REMOTE
