@@ -30,5 +30,6 @@ public interface SummonerRepository extends JpaRepository<SummonerEntity, Long> 
     long deleteByNoAndUserId(Long no, String userId);
 
     long countByUserId(String userId);
-}
 
+    long deleteByUserId(String userId);
+}
