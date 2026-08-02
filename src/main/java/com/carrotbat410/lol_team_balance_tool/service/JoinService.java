@@ -8,9 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 @Service
 public class JoinService {
 
+    private static final ZoneId KOREA_ZONE = ZoneId.of("Asia/Seoul");
 
     private final UserRepository userRepository;
 
@@ -35,6 +39,7 @@ public class JoinService {
         data.setUserId(joinDTO.getUserId());
         data.setPassword(bCryptPasswordEncoder.encode(joinDTO.getPassword()));
         data.setRole("ROLE_USER");
+        data.setCreatedAt(LocalDateTime.now(KOREA_ZONE));
 
         userRepository.save(data);
     }

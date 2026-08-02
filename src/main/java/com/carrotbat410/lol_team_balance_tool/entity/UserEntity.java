@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 
 //TODO 1. BaseEntity 상속받기
@@ -36,4 +37,7 @@ public class UserEntity implements Serializable {
     private String password;
 
     private String role;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 }
