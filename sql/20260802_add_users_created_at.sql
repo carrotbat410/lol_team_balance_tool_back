@@ -1,0 +1,2 @@
+ALTER TABLE users
+    ADD COLUMN created_at datetime(6) NULL DEFAULT CURRENT_TIMESTAMP(6) AFTER role;

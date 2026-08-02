@@ -7,6 +7,7 @@ import com.carrotbat410.lol_team_balance_tool.exHandler.exception.RiotApiNotFoun
 import com.carrotbat410.lol_team_balance_tool.exHandler.exception.UnprocessableContentException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -51,6 +52,12 @@ public class ExControllerAdvice {
     @ExceptionHandler(RiotApiNotFoundException.class)
     public ErrorResponseDTO riotApiNotFoundException(RiotApiNotFoundException e) {
         return new ErrorResponseDTO("RIOT_API_ERROR", e.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(AccessDeniedException.class)
+    public ErrorResponseDTO accessDeniedException(AccessDeniedException e) {
+        return new ErrorResponseDTO("ACCESS_DENIED", e.getMessage());
     }
 
 }

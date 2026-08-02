@@ -6,6 +6,7 @@ import com.carrotbat410.lol_team_balance_tool.jwt.LoginFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -86,7 +87,8 @@ public class SecurityConfig {
 
         http
                         .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/login", "/api", "/api/join","/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/api/team/balance", "/api/tmpHealthCheck", "/api/visits").permitAll()
+                        .requestMatchers("/api/login", "/api", "/api/join","/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/api/team/balance", "/api/tmpHealthCheck", "/api/visits", "/api/community/settings").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/community/posts", "/api/community/posts/**").permitAll()
                         .requestMatchers("/api/admin/**", "/api/admin").hasRole("ADMIN")
                                 .anyRequest().authenticated());//그 외 요청은 로그인한 사용자만 가능하도록
 
