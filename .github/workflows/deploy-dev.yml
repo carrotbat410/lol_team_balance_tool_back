@@ -1,0 +1,317 @@
+name: Dev 백엔드 빌드 및 배포
+
+on:
+  push:
+    branches: ["develop"]
+  workflow_dispatch:
+
+concurrency:
+  group: dev-backend-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: ghcr.io/carrotbat410/lol-team-balance-tool-back
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-24.04-arm
+    environment: development
+
+    steps:
+      - name: develop 브랜치 확인
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" != "refs/heads/develop" ]]; then
+            echo "Dev 배포는 develop 브랜치에서만 실행할 수 있습니다." >&2
+            exit 1
+          fi
+
+      - name: 소스 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Docker Buildx 설정
+        uses: docker/setup-buildx-action@v3
+
+      - name: GHCR 로그인
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Dev 백엔드 이미지 빌드 및 푸시
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:dev
+            ${{ env.IMAGE_NAME }}:dev-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    environment: development
+    env:
+      DEV_SERVER_HOST: ${{ secrets.DEV_SERVER_HOST }}
+      DEV_SERVER_USER: ${{ secrets.DEV_SERVER_USER }}
+      DEV_SERVER_PORT: ${{ secrets.DEV_SERVER_PORT }}
+      DEV_SERVER_SSH_KEY: ${{ secrets.DEV_SERVER_SSH_KEY }}
+      DEV_SERVER_KNOWN_HOSTS: ${{ secrets.DEV_SERVER_KNOWN_HOSTS }}
+      DEV_GHCR_USERNAME: ${{ secrets.DEV_GHCR_USERNAME }}
+      DEV_GHCR_TOKEN: ${{ secrets.DEV_GHCR_TOKEN }}
+
+    steps:
+      - name: 연결 secret 검증
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in DEV_SERVER_HOST DEV_SERVER_USER DEV_SERVER_PORT; do
+            value="${!name-}"
+            if [[ -z "$value" ]]; then
+              echo "필수 secret이 비어 있습니다: $name" >&2
+              exit 1
+            fi
+            if [[ "$value" == *$'\r'* || "$value" == *$'\n'* ]]; then
+              echo "CR/LF를 포함한 secret은 허용되지 않습니다: $name" >&2
+              exit 1
+            fi
+          done
+
+          for name in DEV_SERVER_SSH_KEY DEV_SERVER_KNOWN_HOSTS; do
+            value="${!name-}"
+            if [[ -z "$value" ]]; then
+              echo "필수 secret이 비어 있습니다: $name" >&2
+              exit 1
+            fi
+            if [[ "$value" == *$'\r'* ]]; then
+              echo "CR을 포함한 SSH secret은 허용되지 않습니다: $name" >&2
+              exit 1
+            fi
+          done
+
+          if [[ ! "$DEV_SERVER_HOST" =~ ^[A-Za-z0-9._:-]+$ ]]; then
+            echo "DEV_SERVER_HOST 형식이 올바르지 않습니다." >&2
+            exit 1
+          fi
+          if [[ ! "$DEV_SERVER_USER" =~ ^[A-Za-z0-9._-]+$ ]]; then
+            echo "DEV_SERVER_USER 형식이 올바르지 않습니다." >&2
+            exit 1
+          fi
+          if [[ "$DEV_SERVER_USER" != "ubuntu" ]]; then
+            echo "Dev 배포 경로는 ubuntu 사용자 전용입니다." >&2
+            exit 1
+          fi
+          if [[ ! "$DEV_SERVER_PORT" =~ ^[0-9]+$ ]] || (( DEV_SERVER_PORT < 1 || DEV_SERVER_PORT > 65535 )); then
+            echo "DEV_SERVER_PORT 형식이 올바르지 않습니다." >&2
+            exit 1
+          fi
+
+          if [[ -n "$DEV_GHCR_USERNAME" || -n "$DEV_GHCR_TOKEN" ]]; then
+            if [[ -z "$DEV_GHCR_USERNAME" || -z "$DEV_GHCR_TOKEN" ]]; then
+              echo "DEV_GHCR_USERNAME과 DEV_GHCR_TOKEN은 함께 설정해야 합니다." >&2
+              exit 1
+            fi
+            for name in DEV_GHCR_USERNAME DEV_GHCR_TOKEN; do
+              value="${!name}"
+              if [[ "$value" == *$'\r'* || "$value" == *$'\n'* ]]; then
+                echo "CR/LF를 포함한 secret은 허용되지 않습니다: $name" >&2
+                exit 1
+              fi
+            done
+          fi
+
+      - name: SSH 및 임시 credential 파일 설정
+        id: credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          credential_dir="$RUNNER_TEMP/lol-dev-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          install -m 700 -d "$credential_dir"
+          install -m 600 /dev/null "$credential_dir/id_key"
+          install -m 600 /dev/null "$credential_dir/known_hosts"
+          install -m 600 /dev/null "$credential_dir/ghcr-username"
+          install -m 600 /dev/null "$credential_dir/ghcr-token"
+          printf '%s\n' "$DEV_SERVER_SSH_KEY" > "$credential_dir/id_key"
+          printf '%s\n' "$DEV_SERVER_KNOWN_HOSTS" > "$credential_dir/known_hosts"
+          printf '%s' "$DEV_GHCR_USERNAME" > "$credential_dir/ghcr-username"
+          printf '%s' "$DEV_GHCR_TOKEN" > "$credential_dir/ghcr-token"
+          ssh-keygen -y -f "$credential_dir/id_key" >/dev/null
+          ssh-keygen -l -f "$credential_dir/known_hosts" >/dev/null
+          echo "dir=$credential_dir" >> "$GITHUB_OUTPUT"
+
+      - name: Front Dev 스택 및 원격 도구 preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh -p "$DEV_SERVER_PORT" \
+            -i "${{ steps.credentials.outputs.dir }}/id_key" \
+            -o UserKnownHostsFile="${{ steps.credentials.outputs.dir }}/known_hosts" \
+            -o StrictHostKeyChecking=yes \
+            "$DEV_SERVER_USER@$DEV_SERVER_HOST" \
+            'set -eu; for tool in docker flock curl install awk seq sleep find; do command -v "$tool" >/dev/null 2>&1 || { echo "필수 인프라 도구가 없습니다: $tool" >&2; exit 1; }; done; sudo docker compose version >/dev/null; stack_ready=false; for _ in $(seq 1 60); do if test -s /home/ubuntu/lol-team-balance-dev/docker-compose.yml && test -s /home/ubuntu/lol-team-balance-dev/.env; then stack_ready=true; break; fi; sleep 5; done; if test "$stack_ready" != true; then echo "Front Dev compose/.env가 준비되지 않았습니다. Front Dev workflow를 먼저 실행하세요." >&2; exit 1; fi'
+
+      - name: 임시 GHCR credential 전송
+        id: remote
+        shell: bash
+        run: |
+          set -euo pipefail
+          remote_stage="/home/ubuntu/lol-team-balance-dev/.staging-back-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          ssh -p "$DEV_SERVER_PORT" \
+            -i "${{ steps.credentials.outputs.dir }}/id_key" \
+            -o UserKnownHostsFile="${{ steps.credentials.outputs.dir }}/known_hosts" \
+            -o StrictHostKeyChecking=yes \
+            "$DEV_SERVER_USER@$DEV_SERVER_HOST" "install -m 700 -d '$remote_stage'"
+          scp -P "$DEV_SERVER_PORT" \
+            -i "${{ steps.credentials.outputs.dir }}/id_key" \
+            -o UserKnownHostsFile="${{ steps.credentials.outputs.dir }}/known_hosts" \
+            -o StrictHostKeyChecking=yes \
+            "${{ steps.credentials.outputs.dir }}/ghcr-username" \
+            "${{ steps.credentials.outputs.dir }}/ghcr-token" \
+            "$DEV_SERVER_USER@$DEV_SERVER_HOST:$remote_stage/"
+          ssh -p "$DEV_SERVER_PORT" \
+            -i "${{ steps.credentials.outputs.dir }}/id_key" \
+            -o UserKnownHostsFile="${{ steps.credentials.outputs.dir }}/known_hosts" \
+            -o StrictHostKeyChecking=yes \
+            "$DEV_SERVER_USER@$DEV_SERVER_HOST" \
+            "chmod 600 '$remote_stage/ghcr-username' '$remote_stage/ghcr-token'"
+          echo "stage=$remote_stage" >> "$GITHUB_OUTPUT"
+
+      - name: Dev 백엔드 immutable 이미지 배포
+        shell: bash
+        run: |
+          set -euo pipefail
+          image="${IMAGE_NAME}:dev-${GITHUB_SHA}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          ssh -p "$DEV_SERVER_PORT" \
+            -i "${{ steps.credentials.outputs.dir }}/id_key" \
+            -o UserKnownHostsFile="${{ steps.credentials.outputs.dir }}/known_hosts" \
+            -o StrictHostKeyChecking=yes \
+            "$DEV_SERVER_USER@$DEV_SERVER_HOST" \
+            "flock -x /home/ubuntu/lol-team-balance-dev/.deploy.lock bash -s -- '$image' '${{ steps.remote.outputs.stage }}'" <<'REMOTE'
+          set -euo pipefail
+          new_image="$1"
+          stage="$2"
+          stack=/home/ubuntu/lol-team-balance-dev
+          compose="$stack/docker-compose.yml"
+          env_file="$stack/.env"
+          env_candidate="$stack/.env.new.$$"
+          env_previous="$stack/.env.previous.$$"
+          docker_config="$stage/docker-config"
+          trap 'sudo rm -rf "$stage"; rm -f "$env_candidate" "$env_previous"' EXIT
+
+          if [[ "$stage" != "$stack"/.staging-back-* ]]; then
+            echo "허용되지 않은 staging 경로입니다." >&2
+            exit 1
+          fi
+          find "$stack" -mindepth 1 -maxdepth 1 -type d -name '.staging-*' \
+            ! -path "$stage" -mmin +1440 -exec sudo rm -rf -- {} +
+          [[ -s "$compose" ]] || { echo "Front Dev compose가 없습니다." >&2; exit 1; }
+          [[ -s "$env_file" ]] || { echo "Front Dev .env가 없습니다." >&2; exit 1; }
+
+          install -m 700 -d "$docker_config"
+          if [[ -s "$stage/ghcr-username" && -s "$stage/ghcr-token" ]]; then
+            cat "$stage/ghcr-token" | sudo env DOCKER_CONFIG="$docker_config" docker login ghcr.io \
+              --username "$(cat "$stage/ghcr-username")" --password-stdin >/dev/null
+          fi
+
+          back_existed=false
+          back_running=false
+          previous_image=""
+          if sudo docker inspect lol-dev-back >/dev/null 2>&1; then
+            back_existed=true
+            back_running="$(sudo docker inspect --format '{{.State.Running}}' lol-dev-back)"
+            previous_image="$(sudo docker inspect --format '{{.Config.Image}}' lol-dev-back)"
+          fi
+          cp -p "$env_file" "$env_previous"
+          awk -v image="$new_image" '
+            /^LOL_BACK_IMAGE=/ { print "LOL_BACK_IMAGE=\047" image "\047"; replaced=1; next }
+            { print }
+            END { if (!replaced) print "LOL_BACK_IMAGE=\047" image "\047" }
+          ' "$env_file" > "$env_candidate"
+          chmod 600 "$env_candidate" "$env_previous"
+
+          sudo docker compose --env-file "$env_candidate" -f "$compose" config --quiet
+          if ! sudo env DOCKER_CONFIG="$docker_config" docker compose --env-file "$env_candidate" -f "$compose" pull lol-dev-back; then
+            echo "Dev 백엔드 이미지를 pull하지 못했습니다. private GHCR이면 DEV_GHCR_USERNAME/DEV_GHCR_TOKEN을 설정하세요." >&2
+            exit 1
+          fi
+
+          mv "$env_candidate" "$env_file"
+          chmod 600 "$env_file"
+          cd "$stack"
+          deploy_ok=true
+          sudo docker compose up -d --no-deps lol-dev-back || deploy_ok=false
+          if [[ "$deploy_ok" == true ]]; then
+            deploy_ok=false
+            for _ in $(seq 1 24); do
+              if curl --fail --silent --show-error --max-time 5 \
+                http://127.0.0.1:28080/api/tmpHealthCheck >/dev/null; then
+                deploy_ok=true
+                break
+              fi
+              sleep 5
+            done
+          fi
+
+          if [[ "$deploy_ok" != true ]]; then
+            install -m 600 "$env_previous" "$stack/.env.rollback.$$"
+            mv "$stack/.env.rollback.$$" "$env_file"
+            if [[ "$back_existed" == true ]]; then
+              rollback_started=true
+              sudo env LOL_BACK_IMAGE="$previous_image" docker compose up -d --no-deps lol-dev-back || rollback_started=false
+              if [[ "$back_running" == true ]]; then
+                rollback_healthy=false
+                if [[ "$rollback_started" == true ]]; then
+                  for _ in $(seq 1 24); do
+                    if curl --fail --silent --show-error --max-time 5 \
+                      http://127.0.0.1:28080/api/tmpHealthCheck >/dev/null; then
+                      rollback_healthy=true
+                      break
+                    fi
+                    sleep 5
+                  done
+                fi
+                if [[ "$rollback_healthy" == true ]]; then
+                  echo "Dev 백엔드 health check 실패로 이전 실행 이미지와 .env를 복원했습니다." >&2
+                else
+                  echo "이전 Dev 백엔드 이미지는 복원했지만 rollback health check가 실패했습니다." >&2
+                fi
+              else
+                if [[ "$rollback_started" == true ]]; then
+                  sudo docker stop lol-dev-back >/dev/null 2>&1 || true
+                  echo "Dev 백엔드 health check 실패로 이전 중지 이미지와 .env를 복원했습니다." >&2
+                else
+                  echo "이전 중지 상태의 Dev 백엔드 이미지 복원이 실패했습니다." >&2
+                fi
+              fi
+            else
+              sudo docker rm -f lol-dev-back >/dev/null 2>&1 || true
+              echo "Dev 백엔드 최초 배포 health check가 실패해 신규 컨테이너를 제거하고 .env를 복원했습니다." >&2
+            fi
+            exit 1
+          fi
+          REMOTE
+
+      - name: Runner 및 원격 임시 credential 정리
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          credential_dir="$RUNNER_TEMP/lol-dev-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          remote_stage="/home/ubuntu/lol-team-balance-dev/.staging-back-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          if [[ -s "$credential_dir/id_key" && -s "$credential_dir/known_hosts" \
+            && -n "${DEV_SERVER_HOST:-}" && -n "${DEV_SERVER_USER:-}" \
+            && "${DEV_SERVER_PORT:-}" =~ ^[0-9]+$ ]]; then
+            ssh -p "$DEV_SERVER_PORT" \
+              -i "$credential_dir/id_key" \
+              -o UserKnownHostsFile="$credential_dir/known_hosts" \
+              -o StrictHostKeyChecking=yes \
+              "$DEV_SERVER_USER@$DEV_SERVER_HOST" \
+              "sudo rm -rf '$remote_stage'" >/dev/null 2>&1 || true
+          fi
+          rm -rf -- "$credential_dir"
