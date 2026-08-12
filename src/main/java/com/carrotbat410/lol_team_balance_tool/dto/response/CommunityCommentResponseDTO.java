@@ -15,6 +15,22 @@ public class CommunityCommentResponseDTO {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
+    public CommunityCommentResponseDTO(
+            Long no,
+            Long postNo,
+            String content,
+            String writerId,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt
+    ) {
+        this.no = no;
+        this.postNo = postNo;
+        this.content = content;
+        this.writerId = writerId;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
     public CommunityCommentResponseDTO(CommunityCommentEntity comment) {
         this.no = comment.getNo();
         this.postNo = comment.getPostNo();

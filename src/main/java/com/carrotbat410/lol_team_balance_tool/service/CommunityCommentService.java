@@ -27,9 +27,7 @@ public class CommunityCommentService {
         CommunityPostEntity post = findPost(postNo);
         validateCanReadPost(post);
 
-        return communityCommentRepository.findByPostNoOrderByNoAsc(postNo).stream()
-                .map(CommunityCommentResponseDTO::new)
-                .toList();
+        return communityCommentRepository.findByPostNoOrderByNoAsc(postNo);
     }
 
     @Transactional

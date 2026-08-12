@@ -26,15 +26,12 @@ public class CommunityPostService {
     private final CommunitySettingService communitySettingService;
 
     public List<CommunityPostResponseDTO> getPosts(CommunityPostCategory category) {
-        return communityPostRepository.findByCategoryOrderByNoDesc(category).stream()
-                .map(CommunityPostResponseDTO::new)
-                .toList();
+        return communityPostRepository.findByCategoryOrderByNoDesc(category);
     }
 
     public CommunityPostPageResponseDTO getPostPage(CommunityPostCategory category, int page, int size) {
         PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), 50));
-        Page<CommunityPostResponseDTO> posts = communityPostRepository.findByCategoryOrderByNoDesc(category, pageRequest)
-                .map(CommunityPostResponseDTO::new);
+        Page<CommunityPostResponseDTO> posts = communityPostRepository.findByCategoryOrderByNoDesc(category, pageRequest);
         List<CommunityPostResponseDTO> notices = getPinnedNotices(category);
 
         return new CommunityPostPageResponseDTO(notices, posts);
@@ -162,7 +159,6 @@ public class CommunityPostService {
         return communityPostRepository
                 .findByCategoryOrderByNoDesc(CommunityPostCategory.NOTICE, PageRequest.of(0, noticeDisplayCount))
                 .stream()
-                .map(CommunityPostResponseDTO::new)
                 .toList();
     }
 

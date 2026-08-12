@@ -18,6 +18,26 @@ public class CommunityPostResponseDTO {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
+    public CommunityPostResponseDTO(
+            Long no,
+            CommunityPostCategory category,
+            String title,
+            String content,
+            String writerId,
+            long viewCount,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt
+    ) {
+        this.no = no;
+        this.category = category;
+        this.title = title;
+        this.content = content;
+        this.writerId = writerId;
+        this.viewCount = viewCount;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
     public CommunityPostResponseDTO(CommunityPostEntity post) {
         this.no = post.getNo();
         this.category = post.getCategory();
