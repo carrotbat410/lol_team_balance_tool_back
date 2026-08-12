@@ -7,6 +7,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +15,13 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "community_posts")
+@Table(
+        name = "community_posts",
+        indexes = {
+                @Index(name = "idx_community_posts_category_no", columnList = "category, no"),
+                @Index(name = "idx_community_posts_writer_id", columnList = "writer_id")
+        }
+)
 public class CommunityPostEntity extends BaseEntity {
 
     @Id

@@ -6,5 +6,5 @@ CREATE TABLE IF NOT EXISTS community_comments (
     created_at DATETIME(6) DEFAULT NULL,
     updated_at DATETIME(6) DEFAULT NULL,
     PRIMARY KEY (no),
-    INDEX idx_community_comments_post_no (post_no)
+    INDEX idx_community_comments_post_no_no (post_no, no)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
