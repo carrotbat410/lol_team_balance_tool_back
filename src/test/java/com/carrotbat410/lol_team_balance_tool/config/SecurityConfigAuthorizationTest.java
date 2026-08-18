@@ -21,6 +21,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -45,11 +46,36 @@ class SecurityConfigAuthorizationTest {
 
     @Test
     @WithMockUser(roles = "OPERATOR")
-    void operatorInheritsAdminReadAccess() throws Exception {
+    void operatorCanAccessOperatorOnlyAdminReads() throws Exception {
         when(adminUserService.getUsers()).thenReturn(List.of());
 
         mockMvc.perform(get("/api/admin/users"))
                 .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/admin/visits/summary"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(head("/api/admin/users"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(head("/api/admin/visits/summary"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void adminCannotAccessOperatorOnlyAdminReads() throws Exception {
+        mockMvc.perform(get("/api/admin/users"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(get("/api/admin/visits/summary"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(head("/api/admin/users"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(head("/api/admin/visits/summary"))
+                .andExpect(status().isForbidden());
     }
 
     @Test
