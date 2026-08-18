@@ -4,9 +4,11 @@ import com.carrotbat410.lol_team_balance_tool.dto.CommunitySettingUpdateRequestD
 import com.carrotbat410.lol_team_balance_tool.dto.response.CommunitySettingResponseDTO;
 import com.carrotbat410.lol_team_balance_tool.entity.CommunitySettingEntity;
 import com.carrotbat410.lol_team_balance_tool.repository.CommunitySettingRepository;
+import com.carrotbat410.lol_team_balance_tool.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.AccessDeniedException;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,10 @@ public class CommunitySettingService {
 
     @Transactional
     public CommunitySettingResponseDTO updateSetting(CommunitySettingUpdateRequestDTO request) {
+        if (!SecurityUtils.isCurrentUserOperator()) {
+            throw new AccessDeniedException("운영자만 커뮤니티 공개 설정을 변경할 수 있습니다.");
+        }
+
         CommunitySettingEntity setting = getOrCreateSetting();
         setting.setVisibleToUsers(Boolean.TRUE.equals(request.getVisibleToUsers()));
         setting.setNoticeDisplayCount(request.getNoticeDisplayCount());

@@ -7,6 +7,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class SecurityUtils {
 
+    public static final String ROLE_OPERATOR = "ROLE_OPERATOR";
+    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+    public static final String ROLE_USER = "ROLE_USER";
+
     public static String getCurrentUserIdFromAuthentication() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -27,6 +31,14 @@ public class SecurityUtils {
     }
 
     public static boolean isCurrentUserAdmin() {
+        return hasCurrentUserAnyRole(ROLE_OPERATOR, ROLE_ADMIN);
+    }
+
+    public static boolean isCurrentUserOperator() {
+        return hasCurrentUserAnyRole(ROLE_OPERATOR);
+    }
+
+    public static boolean hasCurrentUserAnyRole(String... roles) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             return false;
@@ -34,7 +46,7 @@ public class SecurityUtils {
 
         return authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .anyMatch("ROLE_ADMIN"::equals);
+                .anyMatch(authority -> java.util.Arrays.asList(roles).contains(authority));
     }
 
 }

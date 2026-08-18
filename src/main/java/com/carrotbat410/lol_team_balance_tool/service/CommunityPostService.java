@@ -38,7 +38,7 @@ public class CommunityPostService {
     }
 
     public CommunityPostPageResponseDTO getVisiblePostPage(CommunityPostCategory category, int page, int size) {
-        if (!SecurityUtils.isCurrentUserAdmin() && !communitySettingService.isVisibleToUsers()) {
+        if (!canReadCommunity()) {
             throw new AccessDeniedException("커뮤니티가 아직 공개되지 않았습니다.");
         }
 
@@ -48,7 +48,7 @@ public class CommunityPostService {
     @Transactional
     public CommunityPostResponseDTO getVisiblePost(Long postNo) {
         CommunityPostEntity post = findPost(postNo);
-        if (!canReadPost(post)) {
+        if (!canReadCommunity()) {
             throw new AccessDeniedException("게시글을 볼 권한이 없습니다.");
         }
 
@@ -59,26 +59,27 @@ public class CommunityPostService {
 
     @Transactional
     public CommunityPostResponseDTO createPost(CommunityPostRequestDTO request) {
-        CommunityPostEntity post = new CommunityPostEntity();
-        post.setCategory(request.getCategory());
-        post.setTitle(request.getTitle().trim());
-        post.setContent(request.getContent().trim());
-        post.setImageUrl(null);
-        post.setWriterId(SecurityUtils.getCurrentUserIdFromAuthentication());
-        post.setViewCount(0);
-
-        return new CommunityPostResponseDTO(communityPostRepository.save(post));
+        validateAdminCanManageCommunity();
+        validateNoticePermission(request.getCategory());
+        return saveNewPost(request);
     }
 
     @Transactional
     public CommunityPostResponseDTO createUserPost(CommunityPostRequestDTO request) {
-        validateUserCanWriteRecruit(request.getCategory());
-        return createPost(request);
+        if (SecurityUtils.isCurrentUserAdmin()) {
+            return createPost(request);
+        }
+
+        validateUserCanWriteCommunity(request.getCategory());
+        return saveNewPost(request);
     }
 
     @Transactional
     public CommunityPostResponseDTO updatePost(Long postNo, CommunityPostRequestDTO request) {
+        validateAdminCanManageCommunity();
         CommunityPostEntity post = findPost(postNo);
+        validateCanManageExistingNotice(post);
+        validateNoticePermission(request.getCategory());
         post.setCategory(request.getCategory());
         post.setTitle(request.getTitle().trim());
         post.setContent(request.getContent().trim());
@@ -94,9 +95,10 @@ public class CommunityPostService {
             return updatePost(postNo, request);
         }
 
-        validateUserCanWriteRecruit(request.getCategory());
-        validateUserOwnsRecruitPost(post);
+        validateUserCanWriteCommunity(request.getCategory());
+        validateUserOwnsWritablePost(post);
 
+        post.setCategory(request.getCategory());
         post.setTitle(request.getTitle().trim());
         post.setContent(request.getContent().trim());
         post.setImageUrl(null);
@@ -106,17 +108,22 @@ public class CommunityPostService {
 
     @Transactional
     public void deletePost(Long postNo) {
+        validateAdminCanManageCommunity();
         CommunityPostEntity post = findPost(postNo);
+        validateCanManageExistingNotice(post);
         communityPostRepository.delete(post);
     }
 
     @Transactional
     public void deleteUserPost(Long postNo) {
         CommunityPostEntity post = findPost(postNo);
-        if (!SecurityUtils.isCurrentUserAdmin()) {
-            validateUserOwnsRecruitPost(post);
+        if (SecurityUtils.isCurrentUserAdmin()) {
+            deletePost(postNo);
+            return;
         }
 
+        validateUserCanAccessPublicCommunity();
+        validateUserOwnsWritablePost(post);
         communityPostRepository.delete(post);
     }
 
@@ -125,24 +132,61 @@ public class CommunityPostService {
                 .orElseThrow(() -> new NotFoundDataException("게시글을 찾을 수 없습니다."));
     }
 
-    private void validateUserCanWriteRecruit(CommunityPostCategory category) {
-        if (SecurityUtils.isCurrentUserAdmin()) {
-            return;
-        }
-
-        if (!communitySettingService.isVisibleToUsers()) {
-            throw new AccessDeniedException("커뮤니티가 아직 공개되지 않았습니다.");
-        }
-
-        if (category != CommunityPostCategory.RECRUIT) {
-            throw new UnprocessableContentException("INVALID_COMMUNITY_CATEGORY", "일반 사용자는 내전모집 글만 작성할 수 있습니다.");
+    private void validateUserCanWriteCommunity(CommunityPostCategory category) {
+        validateUserCanAccessPublicCommunity();
+        if (category != CommunityPostCategory.RECRUIT && category != CommunityPostCategory.CLAN_PROMOTION) {
+            throw new UnprocessableContentException(
+                    "INVALID_COMMUNITY_CATEGORY",
+                    "일반 사용자는 내전모집 또는 클랜홍보 글만 작성할 수 있습니다."
+            );
         }
     }
 
-    private void validateUserOwnsRecruitPost(CommunityPostEntity post) {
+    private void validateUserOwnsWritablePost(CommunityPostEntity post) {
         String currentUserId = SecurityUtils.getCurrentUserIdFromAuthentication();
-        if (post.getCategory() != CommunityPostCategory.RECRUIT || !currentUserId.equals(post.getWriterId())) {
-            throw new AccessDeniedException("본인이 작성한 내전모집 글만 변경할 수 있습니다.");
+        boolean writableCategory = post.getCategory() == CommunityPostCategory.RECRUIT
+                || post.getCategory() == CommunityPostCategory.CLAN_PROMOTION;
+        if (!writableCategory || !currentUserId.equals(post.getWriterId())) {
+            throw new AccessDeniedException("본인이 작성한 내전모집 또는 클랜홍보 글만 변경할 수 있습니다.");
+        }
+    }
+
+    private CommunityPostResponseDTO saveNewPost(CommunityPostRequestDTO request) {
+        CommunityPostEntity post = new CommunityPostEntity();
+        post.setCategory(request.getCategory());
+        post.setTitle(request.getTitle().trim());
+        post.setContent(request.getContent().trim());
+        post.setImageUrl(null);
+        post.setWriterId(SecurityUtils.getCurrentUserIdFromAuthentication());
+        post.setViewCount(0);
+
+        return new CommunityPostResponseDTO(communityPostRepository.save(post));
+    }
+
+    private void validateAdminCanManageCommunity() {
+        if (!SecurityUtils.isCurrentUserAdmin()) {
+            throw new AccessDeniedException("관리자 권한이 필요합니다.");
+        }
+        if (!SecurityUtils.isCurrentUserOperator() && !communitySettingService.isVisibleToUsers()) {
+            throw new AccessDeniedException("비공개 커뮤니티는 운영자만 변경할 수 있습니다.");
+        }
+    }
+
+    private void validateNoticePermission(CommunityPostCategory category) {
+        if (category == CommunityPostCategory.NOTICE && !SecurityUtils.isCurrentUserOperator()) {
+            throw new AccessDeniedException("공지사항 작성과 수정은 운영자만 할 수 있습니다.");
+        }
+    }
+
+    private void validateCanManageExistingNotice(CommunityPostEntity post) {
+        if (post.getCategory() == CommunityPostCategory.NOTICE && !SecurityUtils.isCurrentUserOperator()) {
+            throw new AccessDeniedException("공지사항 수정과 삭제는 운영자만 할 수 있습니다.");
+        }
+    }
+
+    private void validateUserCanAccessPublicCommunity() {
+        if (!communitySettingService.isVisibleToUsers()) {
+            throw new AccessDeniedException("커뮤니티가 아직 공개되지 않았습니다.");
         }
     }
 
@@ -162,12 +206,7 @@ public class CommunityPostService {
                 .toList();
     }
 
-    private boolean canReadPost(CommunityPostEntity post) {
-        if (SecurityUtils.isCurrentUserAdmin() || communitySettingService.isVisibleToUsers()) {
-            return true;
-        }
-
-        String currentUserId = SecurityUtils.getCurrentUserIdOrNull();
-        return currentUserId != null && currentUserId.equals(post.getWriterId());
+    private boolean canReadCommunity() {
+        return SecurityUtils.isCurrentUserAdmin() || communitySettingService.isVisibleToUsers();
     }
 }

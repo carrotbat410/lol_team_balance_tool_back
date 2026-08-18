@@ -22,8 +22,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AccountService {
 
-    private static final String ADMIN_ROLE = "ROLE_ADMIN";
-
     private final UserRepository userRepository;
     private final SummonerRepository summonerRepository;
     private final VisitorLogRepository visitorLogRepository;
@@ -40,8 +38,8 @@ public class AccountService {
             throw new NotFoundDataException("사용자를 찾을 수 없습니다.", "USER_NOT_FOUND");
         }
 
-        if (ADMIN_ROLE.equals(user.getRole())) {
-            throw new UnprocessableContentException("ADMIN_ACCOUNT_DELETE_NOT_ALLOWED", "관리자 계정은 탈퇴할 수 없습니다.");
+        if (SecurityUtils.ROLE_OPERATOR.equals(user.getRole())) {
+            throw new UnprocessableContentException("OPERATOR_ACCOUNT_DELETE_NOT_ALLOWED", "운영자 계정은 탈퇴할 수 없습니다.");
         }
 
         if (!bCryptPasswordEncoder.matches(request.getPassword(), user.getPassword())) {

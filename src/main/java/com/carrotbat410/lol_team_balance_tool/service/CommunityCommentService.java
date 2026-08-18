@@ -32,8 +32,8 @@ public class CommunityCommentService {
 
     @Transactional
     public CommunityCommentResponseDTO createComment(Long postNo, CommunityCommentRequestDTO request) {
-        CommunityPostEntity post = findPost(postNo);
-        validateCanReadPost(post);
+        findPost(postNo);
+        validateCanWriteCommunity();
 
         CommunityCommentEntity comment = new CommunityCommentEntity();
         comment.setPostNo(postNo);
@@ -45,8 +45,8 @@ public class CommunityCommentService {
 
     @Transactional
     public CommunityCommentResponseDTO updateComment(Long postNo, Long commentNo, CommunityCommentRequestDTO request) {
-        CommunityPostEntity post = findPost(postNo);
-        validateCanReadPost(post);
+        findPost(postNo);
+        validateCanWriteCommunity();
 
         CommunityCommentEntity comment = findComment(commentNo);
         validateCommentBelongsToPost(comment, postNo);
@@ -59,8 +59,8 @@ public class CommunityCommentService {
 
     @Transactional
     public void deleteComment(Long postNo, Long commentNo) {
-        CommunityPostEntity post = findPost(postNo);
-        validateCanReadPost(post);
+        findPost(postNo);
+        validateCanWriteCommunity();
 
         CommunityCommentEntity comment = findComment(commentNo);
         validateCommentBelongsToPost(comment, postNo);
@@ -84,12 +84,15 @@ public class CommunityCommentService {
             return;
         }
 
-        String currentUserId = SecurityUtils.getCurrentUserIdOrNull();
-        if (currentUserId != null && currentUserId.equals(post.getWriterId())) {
+        throw new AccessDeniedException("게시글을 볼 권한이 없습니다.");
+    }
+
+    private void validateCanWriteCommunity() {
+        if (SecurityUtils.isCurrentUserOperator() || communitySettingService.isVisibleToUsers()) {
             return;
         }
 
-        throw new AccessDeniedException("게시글을 볼 권한이 없습니다.");
+        throw new AccessDeniedException("비공개 커뮤니티는 운영자만 변경할 수 있습니다.");
     }
 
     private void validateCommentBelongsToPost(CommunityCommentEntity comment, Long postNo) {

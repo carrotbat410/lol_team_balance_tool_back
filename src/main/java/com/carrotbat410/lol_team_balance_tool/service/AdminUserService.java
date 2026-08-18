@@ -6,6 +6,7 @@ import com.carrotbat410.lol_team_balance_tool.entity.UserEntity;
 import com.carrotbat410.lol_team_balance_tool.exHandler.exception.NotFoundDataException;
 import com.carrotbat410.lol_team_balance_tool.exHandler.exception.UnprocessableContentException;
 import com.carrotbat410.lol_team_balance_tool.repository.UserRepository;
+import com.carrotbat410.lol_team_balance_tool.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,11 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class AdminUserService {
 
-    private static final Set<String> ALLOWED_ROLES = Set.of("ROLE_USER", "ROLE_ADMIN");
+    private static final Set<String> ALLOWED_ROLES = Set.of(
+            SecurityUtils.ROLE_USER,
+            SecurityUtils.ROLE_ADMIN,
+            SecurityUtils.ROLE_OPERATOR
+    );
 
     private final UserRepository userRepository;
     private final JdbcTemplate jdbcTemplate;
@@ -48,6 +53,10 @@ public class AdminUserService {
 
     @Transactional
     public AdminUserResponseDTO updateRole(int userNo, AdminUserRoleUpdateRequestDTO request) {
+        if (!SecurityUtils.isCurrentUserOperator()) {
+            throw new org.springframework.security.access.AccessDeniedException("운영자만 회원 역할을 변경할 수 있습니다.");
+        }
+
         String normalizedRole = normalizeRole(request.getRole());
         if (!ALLOWED_ROLES.contains(normalizedRole)) {
             throw new UnprocessableContentException("INVALID_ROLE", "변경할 수 없는 권한입니다.");
@@ -55,6 +64,13 @@ public class AdminUserService {
 
         UserEntity user = userRepository.findById(userNo)
                 .orElseThrow(() -> new NotFoundDataException("회원을 찾을 수 없습니다."));
+
+        if (SecurityUtils.ROLE_OPERATOR.equals(user.getRole())
+                && !SecurityUtils.ROLE_OPERATOR.equals(normalizedRole)
+                && userRepository.findAllByRole(SecurityUtils.ROLE_OPERATOR).size() <= 1) {
+            throw new UnprocessableContentException("LAST_OPERATOR_DEMOTION_NOT_ALLOWED", "마지막 운영자는 강등할 수 없습니다.");
+        }
+
         user.setRole(normalizedRole);
         userRepository.saveAndFlush(user);
 
