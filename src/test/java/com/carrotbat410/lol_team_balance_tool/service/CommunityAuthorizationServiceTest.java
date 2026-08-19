@@ -106,6 +106,19 @@ class CommunityAuthorizationServiceTest {
     }
 
     @Test
+    void visiblePostGetDoesNotMutateViewCount() {
+        when(settingService.isVisibleToUsers()).thenReturn(true);
+        CommunityPostEntity post = new CommunityPostEntity();
+        post.setViewCount(7);
+        when(postRepository.findById(1L)).thenReturn(Optional.of(post));
+
+        assertThat(postService.getVisiblePost(1L).getViewCount()).isEqualTo(7);
+
+        assertThat(post.getViewCount()).isEqualTo(7);
+        verify(postRepository, never()).save(any());
+    }
+
+    @Test
     void adminKeepsPublicManagementButCannotCreateNotice() {
         authenticate(SecurityUtils.ROLE_ADMIN);
         when(settingService.isVisibleToUsers()).thenReturn(true);

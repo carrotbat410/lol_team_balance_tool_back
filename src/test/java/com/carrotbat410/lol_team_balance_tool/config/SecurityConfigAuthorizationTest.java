@@ -2,10 +2,14 @@ package com.carrotbat410.lol_team_balance_tool.config;
 
 import com.carrotbat410.lol_team_balance_tool.controller.AdminController;
 import com.carrotbat410.lol_team_balance_tool.controller.CommunitySettingController;
+import com.carrotbat410.lol_team_balance_tool.controller.CommunityPostController;
+import com.carrotbat410.lol_team_balance_tool.dto.response.CommunityPostViewResponseDTO;
 import com.carrotbat410.lol_team_balance_tool.dto.response.CommunitySettingResponseDTO;
 import com.carrotbat410.lol_team_balance_tool.jwt.JWTUtil;
 import com.carrotbat410.lol_team_balance_tool.service.AdminUserService;
 import com.carrotbat410.lol_team_balance_tool.service.CommunitySettingService;
+import com.carrotbat410.lol_team_balance_tool.service.CommunityPostService;
+import com.carrotbat410.lol_team_balance_tool.service.CommunityPostViewService;
 import com.carrotbat410.lol_team_balance_tool.service.VisitorLogService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +27,10 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = {AdminController.class, CommunitySettingController.class})
+@WebMvcTest(controllers = {AdminController.class, CommunitySettingController.class, CommunityPostController.class})
 @Import(SecurityConfig.class)
 class SecurityConfigAuthorizationTest {
 
@@ -43,6 +48,12 @@ class SecurityConfigAuthorizationTest {
 
     @MockBean
     private CommunitySettingService communitySettingService;
+
+    @MockBean
+    private CommunityPostService communityPostService;
+
+    @MockBean
+    private CommunityPostViewService communityPostViewService;
 
     @Test
     @WithMockUser(roles = "OPERATOR")
@@ -108,6 +119,27 @@ class SecurityConfigAuthorizationTest {
     @WithMockUser(roles = "USER")
     void userCannotAccessAdminRoutes() throws Exception {
         mockMvc.perform(get("/api/admin/users"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void anonymousCanRecordViewOnlyOnExactPublicPostPath() throws Exception {
+        when(communityPostViewService.recordView(any(), any()))
+                .thenReturn(new CommunityPostViewResponseDTO(true, 1));
+
+        mockMvc.perform(post("/api/community/posts/1/views")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"visitorId\":\"guest_123\"}"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/community/posts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"category\":\"RECRUIT\",\"title\":\"title\",\"content\":\"content\"}"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(post("/api/community/posts/1/views/extra")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"visitorId\":\"guest_123\"}"))
                 .andExpect(status().isForbidden());
     }
 }

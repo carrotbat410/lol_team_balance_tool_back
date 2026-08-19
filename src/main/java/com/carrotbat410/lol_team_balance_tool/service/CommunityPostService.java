@@ -45,16 +45,9 @@ public class CommunityPostService {
         return getPostPage(category, page, size);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public CommunityPostResponseDTO getVisiblePost(Long postNo) {
-        CommunityPostEntity post = findPost(postNo);
-        if (!canReadCommunity()) {
-            throw new AccessDeniedException("게시글을 볼 권한이 없습니다.");
-        }
-
-        post.setViewCount(post.getViewCount() + 1);
-
-        return new CommunityPostResponseDTO(communityPostRepository.save(post));
+        return new CommunityPostResponseDTO(getVisiblePostEntity(postNo));
     }
 
     @Transactional
@@ -130,6 +123,14 @@ public class CommunityPostService {
     private CommunityPostEntity findPost(Long postNo) {
         return communityPostRepository.findById(postNo)
                 .orElseThrow(() -> new NotFoundDataException("게시글을 찾을 수 없습니다."));
+    }
+
+    CommunityPostEntity getVisiblePostEntity(Long postNo) {
+        CommunityPostEntity post = findPost(postNo);
+        if (!canReadCommunity()) {
+            throw new AccessDeniedException("게시글을 볼 권한이 없습니다.");
+        }
+        return post;
     }
 
     private void validateUserCanWriteCommunity(CommunityPostCategory category) {

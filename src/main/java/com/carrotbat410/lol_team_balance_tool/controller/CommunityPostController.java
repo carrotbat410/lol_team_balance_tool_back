@@ -1,11 +1,14 @@
 package com.carrotbat410.lol_team_balance_tool.controller;
 
 import com.carrotbat410.lol_team_balance_tool.dto.CommunityPostRequestDTO;
+import com.carrotbat410.lol_team_balance_tool.dto.CommunityPostViewRequestDTO;
 import com.carrotbat410.lol_team_balance_tool.dto.response.CommunityPostPageResponseDTO;
 import com.carrotbat410.lol_team_balance_tool.dto.response.CommunityPostResponseDTO;
+import com.carrotbat410.lol_team_balance_tool.dto.response.CommunityPostViewResponseDTO;
 import com.carrotbat410.lol_team_balance_tool.dto.response.SuccessResponseDTO;
 import com.carrotbat410.lol_team_balance_tool.entity.CommunityPostCategory;
 import com.carrotbat410.lol_team_balance_tool.service.CommunityPostService;
+import com.carrotbat410.lol_team_balance_tool.service.CommunityPostViewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommunityPostController {
 
     private final CommunityPostService communityPostService;
+    private final CommunityPostViewService communityPostViewService;
 
     @GetMapping
     @Operation(summary = "커뮤니티 게시글 목록", description = "커뮤니티 게시글 목록을 조회합니다.")
@@ -42,6 +46,18 @@ public class CommunityPostController {
     @Operation(summary = "커뮤니티 게시글 상세", description = "커뮤니티 게시글 상세를 조회합니다.")
     public SuccessResponseDTO<CommunityPostResponseDTO> post(@PathVariable Long postNo) {
         return new SuccessResponseDTO<>("community post", communityPostService.getVisiblePost(postNo));
+    }
+
+    @PostMapping("/{postNo}/views")
+    @Operation(summary = "커뮤니티 게시글 조회수 기록", description = "게시글의 일일 고유 조회수를 기록합니다.")
+    public SuccessResponseDTO<CommunityPostViewResponseDTO> recordView(
+            @PathVariable Long postNo,
+            @Valid @RequestBody CommunityPostViewRequestDTO request
+    ) {
+        return new SuccessResponseDTO<>(
+                "community post view recorded",
+                communityPostViewService.recordView(postNo, request)
+        );
     }
 
     @PostMapping
